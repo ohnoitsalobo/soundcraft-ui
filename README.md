@@ -1,6 +1,7 @@
 # soundcraft-ui
 My attempt to build a basic HTML page that can control, or at least display, desired aspects of the Soundcraft UI series digital mixers.  
-I have a Ui12 and have tested with this - but it should work on all Ui mixers directly (I think). Be sure to change the given IP address in `script.js` to match your own mixer's IP address.
+This webpage SHOULD work with Ui12 and Ui16 mixers directly. Be sure to change the given IP address in `script.js` to match your own mixer's IP address.  
+I will attempt to gain access to a Ui24 to test as well, but I expect it should work as well.
 
 At the moment, the HTML page / JS script can read all messages coming from the mixer, and just displays them on the page with zero adjustment.  
 The mixer also sends RTA messages (spectrum analyzer values) in an encoded string. I'm currently ignoring this until I can figure out how to parse the RTA into actual values and display them as a spectrum analyzer.
@@ -17,7 +18,9 @@ I am not repsonsible for your mixer's safety. Use this script with care.
 
 You can fetch the initial starting values of the mixer from a JSON file located at `http://[your-mixer-ip]/js/initparams.js`
 
-EXAMPLE OUTPUT DATA (all are valid inputs for controlling the mixer).  
+EXAMPLE UI12 OUTPUT DATA (all are valid inputs for controlling the mixer).  
+Ui16 and Ui24 will have correspondingly more data as they have more inputs and outputs to control.  
+Ui24 in particular will have a lot more as it also has patching information to synchronize.
 
 ```
 SETD^a.0.afs.clearall^0
