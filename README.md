@@ -13,10 +13,10 @@ Using this, it would be possible to translate the messages to and from MIDI sign
 
 This was made possible through code from https://blechtrottel.net/en/jswebsockets.html
 
-DISCLAIMER: Please note that the mixer only accepts fader/slider values between 0 and 1, and values outside this range may cause unintended behaviour.  
+DISCLAIMER: Please note that (with a few exceptions) the mixer only accepts fader/slider values between 0 and 1, and sending values outside this range may cause unintended behaviour.  
 I am not repsonsible for your mixer's safety. Use this script with care.
 
-You can fetch the initial starting values of the mixer from a JSON file located at `http://[your-mixer-ip]/js/initparams.js`
+You can fetch the initial starting values of the mixer from a JSON file located at `http://[your-mixer-ip]/js/initparams.js` OR parse the intial values from the Websocket when initially connecting to the mixer.
 
 EXAMPLE UI12 OUTPUT DATA (all are valid inputs for controlling the mixer).  
 Ui16 and Ui24 will have correspondingly more data as they have more inputs and outputs to control.  
