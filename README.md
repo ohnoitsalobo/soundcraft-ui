@@ -15,6 +15,8 @@ This was made possible through code from https://blechtrottel.net/en/jswebsocket
 DISCLAIMER: Please note that the mixer only accepts fader/slider values between 0 and 1, and values outside this range may cause unintended behaviour.  
 I am not repsonsible for your mixer's safety. Use this script with care.
 
+You can fetch the initial starting values of the mixer from a JSON file located at `http://[your-mixer-ip]/js/initparams.js`
+
 EXAMPLE OUTPUT DATA (all are valid inputs for controlling the mixer).  
 
 ```
