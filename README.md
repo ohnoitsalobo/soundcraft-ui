@@ -1,11 +1,14 @@
 # soundcraft-ui
 
 Related projects and videos:  
--[soundcraft-osc-bridge](https://github.com/stefets/osc-soundcraft-bridge)
+- [soundcraft-ui-connection](https://fmalcher.github.io/soundcraft-ui/) - Javascript / Typescript
+- [soundcraft-osc-bridge](https://github.com/stefets/osc-soundcraft-bridge) - python
+- [ui2mcp](https://github.com/stevaedrum/ui2mcp/)
 
 My attempt to build a basic HTML page that can control, or at least display, desired aspects of the Soundcraft UI series digital mixers.  
 This webpage SHOULD work with Ui12 and Ui16 mixers directly. Be sure to change the given IP address in `script.js` to match your own mixer's IP address.  
-I will attempt to gain access to a Ui24 to test as well, but I expect it should work as well.
+I will attempt to gain access to a Ui24 to test as well, but I expect it should work as well.  
+This was made possible through code from https://blechtrottel.net/en/jswebsockets.html
 
 At the moment, the HTML page / JS script can read all messages coming from the mixer, and just displays them on the page with zero adjustment.  
 The mixer also sends RTA messages (spectrum analyzer values) in an encoded string. I'm currently ignoring this until I can figure out how to parse the RTA into actual values and display them as a spectrum analyzer.
@@ -15,7 +18,6 @@ You'll want to script that with sliders and knobs, etc. This can also be used wi
 
 Using this, it would be possible to translate the messages to and from MIDI signals if you have the programming knowledge.
 
-This was made possible through code from https://blechtrottel.net/en/jswebsockets.html
 
 DISCLAIMER: Please note that (with a few exceptions) the mixer only accepts fader/slider values between 0 and 1, and sending values outside this range may cause unintended behaviour.  
 I am not repsonsible for your mixer's safety. Use this script with care.
