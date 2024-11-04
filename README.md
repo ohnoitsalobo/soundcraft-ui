@@ -1,4 +1,8 @@
 # soundcraft-ui
+
+Related projects and videos:  
+-[soundcraft-osc-bridge](https://github.com/stefets/osc-soundcraft-bridge)
+
 My attempt to build a basic HTML page that can control, or at least display, desired aspects of the Soundcraft UI series digital mixers.  
 This webpage SHOULD work with Ui12 and Ui16 mixers directly. Be sure to change the given IP address in `script.js` to match your own mixer's IP address.  
 I will attempt to gain access to a Ui24 to test as well, but I expect it should work as well.
