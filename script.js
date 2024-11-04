@@ -32,29 +32,14 @@ socket.onmessage = function(event) {
             
         }
         else if (line.search(/SETD/) > -1 || line.search(/SETS/) > -1) {
-            line = line.replace('3:::', '');
+            line = line.replace('3:::', '');    // remove the starting characters
             document.body.insertAdjacentHTML("afterbegin", line+"<br \>");
+            // append new commands to the start of the HTML page 
+            // instead of the end so there's no need to scroll
         }
         else if(line.startsWith("3:::RTA")){
-            
+            line = line.replace('3:::RTA^', '');    // remove the starting characters
+            // do shit with RTA
         }
     });
 };
-/*  * /
-// Base64 encoded string
-const base64String = "Hh4ZEyUkIysuMTE1NDk7OkE/O0BTSkFFQDU1PEJBRk1oUkY+P0BFR0NBQUpGSllnYlZba11UaVtfXFBLW09NSUFDUEFANz05QD0/PE5LRkdPSUVISFJJS0xNSE9RT1RZUFdbZV1fYGBiaGlrYmticG9lbWlaWE5KR0Q=";
-
-// Decode the Base64 string to a Uint8Array
-const binaryString = atob(base64String);
-const byteArray = new Uint8Array(binaryString.length);
-
-// Populate the Uint8Array with the decoded binary data
-for (let i = 0; i < binaryString.length; i++) {
-  byteArray[i] = binaryString.charCodeAt(i);
-}
-
-// Convert the Uint8Array to a Float32Array in little-endian format
-const float32Array = new Float32Array(byteArray.buffer);
-
-console.log(float32Array);
-/*  */
