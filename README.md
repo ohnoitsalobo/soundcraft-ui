@@ -1,11 +1,11 @@
 # soundcraft-ui
 
 Related projects:  
-- [soundcraft-ui-connection](https://fmalcher.github.io/soundcraft-ui/) - Javascript / Typescript  
+- [soundcraft-ui-connection](https://fmalcher.github.io/soundcraft-ui/) - Javascript / Typescript library  
 - [soundcraft-osc-bridge](https://github.com/stefets/osc-soundcraft-bridge) - OSC control, python  
 - [ui2mcp](https://github.com/stevaedrum/ui2mcp/) - MIDI control, C  
-- [Ui Multiframe Wrapper](https://github.com/NaturalDevCR/MyUiPro) - to get multiple mixer views on a larger screen  
-- [Ui Javascript control tutorial](https://www.youtube.com/watch?v=nS0MaWOf4_U)  
+- [Ui Multiframe Wrapper](https://github.com/NaturalDevCR/MyUiPro) - HTML, to get multiple mixer views on a larger screen  
+- [Ui Javascript control tutorial](https://www.youtube.com/watch?v=nS0MaWOf4_U) - YouTube tutorial  
 
 My attempt to build a basic HTML page that can control, or at least display, desired aspects of the Soundcraft UI series digital mixers.  
 This webpage SHOULD work with Ui12 and Ui16 mixers directly. Be sure to change the given IP address in `script.js` to match your own mixer's IP address.  
