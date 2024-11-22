@@ -7,6 +7,13 @@ Related projects:
 - [Ui Multiframe Wrapper](https://github.com/NaturalDevCR/MyUiPro) - HTML, to get multiple mixer views on a larger screen  
 - [Ui Javascript control tutorial](https://www.youtube.com/watch?v=nS0MaWOf4_U) - YouTube tutorial  
 
+## mixer-multi.html
+
+VERY basic HTML iframes to access multiple views of the mixer interface on one screen (i.e. faders, EQ, dynamics).
+Load the page
+
+## index.html
+
 My attempt to build a basic HTML page that can control, or at least display, desired aspects of the Soundcraft UI series digital mixers.  
 This webpage SHOULD work with Ui12 and Ui16 mixers directly. Be sure to change the given IP address in `script.js` to match your own mixer's IP address.  
 I will attempt to gain access to a Ui24 to test as well, but I expect it should work as well.  
