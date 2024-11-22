@@ -16,6 +16,8 @@ In `wled.cpp`:
     
 In `FX_fcn.cpp`:
     - add `userLoop();` before the conditional `if(doShow)` at line 1229
+
+Remember to set your own mixer IP and matrix dimensions.
     
 I didn't feel like learning how to deal with the WLED methods.
 My v1 userLoop brute-forces the LED strip colors by calling `strip.setPixelColorXY`,
@@ -41,11 +43,11 @@ and then pushes those colors on to the strip just before it displays.
 //Use userVar0 and userVar1 (API calls &U0=,&U1=, uint16_t)
 
 #define USE_SERIAL Serial
-#define IPADDRESS "192.168.137.2"   // my mixer IP
+#define IPADDRESS "192.168.137.2"   // set your mixer IP here
 #define _keepAlive_ "3:::ALIVE"
 
-#define numrows 9.0
-#define numcols 23.0
+#define numrows 9.0      // set LED panel dimensions here
+#define numcols 23.0     // set LED panel dimensions here
 
 WebSocketsClient webSocket;
 
