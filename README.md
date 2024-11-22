@@ -10,7 +10,7 @@ Related projects:
 ## mixer-multi
 
 VERY basic HTML iframes to access multiple views of the mixer interface on one large screen (i.e. faders, EQ, dynamics).
-Load the page, enter your mixer IP, and open the EQ and dynamics in the upper frames.
+Load the page, enter your mixer IP, and open the EQ and dynamics in the upper frames.  
 **NOTE: you will need to enable sync in `Settings -> Local -> SYNC SELECTED CHANNEL`, then refresh the page.**
 
 This is well suited to use on a tablet or other large screen. The iframes will rearrange into a neat column in portrait orientation.
