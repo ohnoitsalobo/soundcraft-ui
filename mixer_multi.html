@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soundcraft Ui Multi</title>
+    <style>
+        body {
+            background: black;
+            margin: 0px;
+            padding: 0px;
+        }
+        .iframe_l{
+            height: 50vh;
+        }
+        .iframe1_l{
+            width: 49%;
+        }
+        .iframe2_l{
+            width: 100%;
+        }
+        .iframe_p{
+            height: 33.3vh;
+        }
+        .iframe1_p{
+            width: 100%;
+        }
+        .iframe2_p{
+            width: 97%;
+        }
+    </style>
+</head>
+<body>
+  <script>
+      const defaultIp = "192.168.137.2";
+      const userIp = prompt("Please enter the IP address:", defaultIp) || defaultIp;
+  </script>
+  <main id="fullscreenButton">
+    <div style="display:flex">
+        <iframe class="iframe_l iframe1_l" src="http://192.168.137.2/mixer.html" frameBorder="0"></iframe>
+        <iframe class="iframe_l iframe1_l" src="http://192.168.137.2/mixer.html" frameBorder="0"></iframe>
+    </div>
+    <iframe class="iframe_l iframe2_l" src="http://192.168.137.2/mixer.html" frameBorder="0"></iframe>
+  </main>
+<script>
+    console.info(userIp+"/mixer.html");
+    var iframes = document.getElementsByTagName("iframe");
+    for(let i = 0; i < iframes.length; i++){
+      iframes[i].src = "";
+      iframes[i].src = `http://${userIp}/mixer.html`;
+    }
+    
+    window.addEventListener('resize', fixLayout);
+    window.addEventListener('load', fixLayout);
+    
+    function fixLayout() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        console.log(`Screen resolution is ${width} x ${height}`);
+
+        // Do something based on the new resolution
+        var _iframes = document.getElementsByTagName("iframe");
+        var _div = document.getElementsByTagName("div")[0];
+        if(width > height){
+            _iframes[0].classList.replace( "iframe_p", "iframe_l");
+            _iframes[0].classList.replace("iframe1_p","iframe1_l");
+            _iframes[1].classList.replace( "iframe_p", "iframe_l");
+            _iframes[1].classList.replace("iframe1_p","iframe1_l");
+            _iframes[2].classList.replace( "iframe_p", "iframe_l");
+            _iframes[2].classList.replace("iframe2_p","iframe2_l");
+            _div.style.flexDirection = "row";
+        } else {
+            _iframes[0].classList.replace( "iframe_l", "iframe_p");
+            _iframes[0].classList.replace("iframe1_l","iframe1_p");
+            _iframes[1].classList.replace( "iframe_l", "iframe_p");
+            _iframes[1].classList.replace("iframe1_l","iframe1_p");
+            _iframes[2].classList.replace( "iframe_l", "iframe_p");
+            _iframes[2].classList.replace("iframe2_l","iframe2_p");
+            _div.style.flexDirection = "column";
+        }
+    }
+    
+    function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+  }
+  
+  // Add the event listener to the button
+    const fullscreenButton = document.getElementById("fullscreenButton");
+    fullscreenButton.addEventListener("dblclick", toggleFullscreen);
+</script>
+</body>
+</html>

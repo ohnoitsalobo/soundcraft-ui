@@ -4,10 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soundcraft UI Websockets</title>
+    <style>
+        body {
+            font-family: Consolas, monospace;
+            font-size: 0.7em;
+            background: black;
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <!-- RTA graph to display here -->
     <div id="_rta"></div>
+
+    <!-- RTA raw data to display here -->
+    <div id="_rta_message"></div>
 
     <!-- mixer websocket messages to display here -->
     <div id="messages"></div>
