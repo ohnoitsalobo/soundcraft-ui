@@ -7,16 +7,19 @@ Related projects:
 - [Ui Multiframe Wrapper](https://github.com/NaturalDevCR/MyUiPro) - HTML, to get multiple mixer views on a larger screen  
 - [Ui Javascript control tutorial](https://www.youtube.com/watch?v=nS0MaWOf4_U) - YouTube tutorial  
 
-## mixer-multi.html
+## mixer-multi
 
-VERY basic HTML iframes to access multiple views of the mixer interface on one screen (i.e. faders, EQ, dynamics).
-Load the page
+VERY basic HTML iframes to access multiple views of the mixer interface on one large screen (i.e. faders, EQ, dynamics).
+Load the page, enter your mixer IP, and open the EQ and dynamics in the upper frames.
+**NOTE: you will need to enable sync in `Settings -> Local -> SYNC SELECTED CHANNEL`, then refresh the page.**
 
-## index.html
+This is well suited to use on a tablet or other large screen. The iframes will rearrange into a neat column in portrait orientation.
+
+## uidata_websocket
 
 My attempt to build a basic HTML page that can control, or at least display, desired aspects of the Soundcraft UI series digital mixers.  
 This webpage SHOULD work with Ui12 and Ui16 mixers directly. Be sure to change the given IP address in `script.js` to match your own mixer's IP address.  
-I will attempt to gain access to a Ui24 to test as well, but I expect it should work as well.  
+I will attempt to gain access to a Ui24 to test as well, but I expect it should work just as well.  
 This was made possible through code from https://blechtrottel.net/en/jswebsockets.html
 
 At the moment, the HTML page / JS script can read all messages coming from the mixer, and just displays them on the page with zero adjustment.  
@@ -27,7 +30,6 @@ You can control the mixer directly by sending a message through the developer co
 You'll want to script that with sliders and knobs, etc. This can also be used with network-enabled devices like Arduino (with the network shield) or Espressif ESP 8266/32 series, or Raspberry Pi.  
 
 Using this, it would be possible to translate the messages to and from MIDI signals if you have the programming knowledge.
-
 
 **DISCLAIMER: Please note that, with some exceptions, the mixer only accepts fader/slider values between 0 and 1, and sending values outside this range may cause unintended behaviour.  
 I am not responsible for your mixer's safety. Use this script with care.**
