@@ -18,9 +18,11 @@ This is well suited to use on a tablet or other large screen. The iframes will r
 
 ## WLED_GEQ_usermod
 
-This is a very hacky mod for the popular [WLED](https://kno.wled.ge) DIY lighting control software. Using the Websocket connection from a ESP32 microcontroller running WLED, the ESP32 reads the constant RTA messages (see [Ui Multiframe Wrapper](#uidata_websocket) and uses the decoded information to drive a 2D LED panel.  
+This is a very hacky mod for the popular [WLED](https://kno.wled.ge) DIY lighting control software.  
+Using the Soundcraft websocket connection from a ESP32 microcontroller running WLED, the ESP32 reads the constant RTA messages (see [uidata_websocket](#uidata_websocket) below) and uses the decoded information to display a graphical EQ representation of the music in real time on a 2D LED panel.  
 
-WLED has some audio-reactive options, but the FFT to get the audio spectrum is quite processing-intensive. This sidesteps the issue by using the 122 bands of frequency information 
+WLED has audio-reactive options, but 1) they require additional external hardware/software setup, and 2) the FFT to get the audio spectrum is quite processing-intensive and tops out at 16 frequency bands.  
+This sidesteps any issue by using the 122 bands of frequency information constantly broadcasting from the Ui12/16/24 websocket, without any external hardware.
 
 ## uidata_websocket
 
