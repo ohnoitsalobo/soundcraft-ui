@@ -31,6 +31,10 @@ This sidesteps any issue by using the 122 bands of frequency information constan
 4) compile, and if it compiles, upload to your ESP32.
     4a - If it doesn't compile, be ready to troubleshoot on your own. I can't help much.
 
+Result:
+
+https://github.com/ohnoitsalobo/soundcraft-ui/raw/refs/heads/main/WLED_GEQ_usermod/Soundcraft%20Ui12%20ESP32%20WLED.mp4
+
 ## uidata_websocket
 
 My attempt to build a basic HTML page that can control, or at least display, desired aspects of the Soundcraft UI series digital mixers.  
