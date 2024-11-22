@@ -24,6 +24,12 @@ Using the Soundcraft websocket connection from a ESP32 microcontroller running W
 WLED has audio-reactive options, but 1) they require additional external hardware/software setup, and 2) the FFT to get the audio spectrum is quite processing-intensive and tops out at 16 frequency bands.  
 This sidesteps any issue by using the 122 bands of frequency information constantly broadcasting from the Ui12/16/24 websocket, without any external hardware.
 
+1) clone the [WLED Github repo](https://github.com/Aircoookie/WLED).  
+2) replace the `usermod.cpp` in the subfolder `wled00`.
+3) follow instructions in the `usermod.cpp` to add library dependencies and edit other WLED files
+4) compile, and if it compiles, upload to your ESP32.
+    4a - If it doesn't compile, be ready to troubleshoot on your own. I can't help much.
+
 ## uidata_websocket
 
 My attempt to build a basic HTML page that can control, or at least display, desired aspects of the Soundcraft UI series digital mixers.  
