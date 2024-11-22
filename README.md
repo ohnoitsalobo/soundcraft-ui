@@ -16,6 +16,12 @@ Load the page, enter your mixer IP, and open the EQ and dynamics in the upper fr
 
 This is well suited to use on a tablet or other large screen. The iframes will rearrange into a neat column in portrait orientation.
 
+## WLED_GEQ_usermod
+
+This is a very hacky mod for the popular [WLED](https://kno.wled.ge) DIY lighting control software. Using the Websocket connection from a ESP32 microcontroller running WLED, the ESP32 reads the constant RTA messages (see [Ui Multiframe Wrapper](#uidata_websocket) and uses the decoded information to drive a 2D LED panel.  
+
+WLED has some audio-reactive options, but the FFT to get the audio spectrum is quite processing-intensive. This sidesteps the issue by using the 122 bands of frequency information 
+
 ## uidata_websocket
 
 My attempt to build a basic HTML page that can control, or at least display, desired aspects of the Soundcraft UI series digital mixers.  
