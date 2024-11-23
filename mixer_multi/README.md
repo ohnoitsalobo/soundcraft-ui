@@ -8,8 +8,8 @@ Load the page, enter your mixer IP, and open the EQ and dynamics in the upper fr
 This is well suited to use on a tablet or other large screen. The iframes will rearrange into a neat column in portrait orientation.  
 Double click the black space on the right side to toggle fullscreen.
 
-**Landscape view**
+**Landscape view**  
 ![landscape](https://github.com/user-attachments/assets/6cc76e27-602c-4b7b-a7aa-625b21d84b51)
 
-**Portrait view**
+**Portrait view**  
 ![portrait](https://github.com/user-attachments/assets/d3e9aa45-e7ed-473f-a84a-4acbe7974ed1)
