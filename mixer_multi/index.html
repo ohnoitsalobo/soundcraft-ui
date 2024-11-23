@@ -28,6 +28,22 @@
         .iframe2_p{
             width: 97%;
         }
+        p {
+            font-family: monospace;
+            color: white;
+            writing-mode: vertical-lr;
+            position: absolute;
+            right: 0.5%;
+            z-index: -1;
+            padding: 0px;
+            margin: 0px;
+        }
+        #p1 {
+            top: 5%;
+        }
+        #p2 {
+            bottom: 5%;
+        }
     </style>
 </head>
 <body>
@@ -36,6 +52,8 @@
       const userIp = prompt("Please enter the IP address:", defaultIp) || defaultIp;
   </script>
   <main id="fullscreenButton">
+  <p id="p1">Double click : Toggle Fullscreen</p>
+  <p id="p2">Double click : Toggle Fullscreen</p>
     <div style="display:flex">
         <iframe class="iframe_l iframe1_l" src="http://192.168.137.2/mixer.html" frameBorder="0"></iframe>
         <iframe class="iframe_l iframe1_l" src="http://192.168.137.2/mixer.html" frameBorder="0"></iframe>
