@@ -33,7 +33,7 @@ This sidesteps any issue by using the 122 bands of frequency information constan
 
 Result:
 
-https://github.com/ohnoitsalobo/soundcraft-ui/raw/refs/heads/main/WLED_GEQ_usermod/Soundcraft%20Ui12%20ESP32%20WLED.mp4
+[![thumbnail](https://github.com/user-attachments/assets/35cd0a23-5838-4ebb-9e83-110090f9c9e5)](https://github.com/ohnoitsalobo/soundcraft-ui/raw/refs/heads/main/WLED_GEQ_usermod/Soundcraft%20Ui12%20ESP32%20WLED.mp4)
 
 ## uidata_websocket
 
