@@ -1,11 +1,11 @@
 ## uidata_websocket
 
 My attempt to build a basic HTML page that can control, or at least display, desired aspects of the Soundcraft UI series digital mixers.  
-This webpage SHOULD work with Ui12 and Ui16 mixers directly. Be sure to change the given IP address in `script.js` to match your own mixer's IP address.  
+This webpage SHOULD work with Ui12 and Ui16 mixers directly. Be sure to change the given IP address in the javascript section of the HTML to match your own mixer's IP address.  
 I will attempt to gain access to a Ui24 to test as well, but I expect it should work just as well.  
 This was made possible through code from https://blechtrottel.net/en/jswebsockets.html
 
-At the moment, the HTML page / JS script can read all messages coming from the mixer, and just displays them on the page with zero adjustment.  
+At the moment, the HTML page / JS can read all messages coming from the mixer, and just displays them on the page with zero adjustment.  
 The mixer also sends RTA messages (spectrum analyzer values) in an encoded string.
 The webpage decodes this and displays the RTA as a bar graph.
 
