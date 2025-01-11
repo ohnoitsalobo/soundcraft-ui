@@ -121,7 +121,8 @@
         /* */
             const sliderContainer = document.createElement('div');
             sliderContainer.style.display = 'flex';
-            sliderContainer.style.flexDirection = 'column';
+            sliderContainer.style.flexDirection = 'row';
+            sliderContainer.style.justifyContent = 'space-between';
 
             const sliderLabel = document.createElement('div');
             sliderLabel.style.marginTop = '10px';
@@ -130,6 +131,7 @@
             // Create the slider input
             const slider = document.createElement('input');
             slider.type = 'range';
+            slider.style.width = '50%';
             slider.id = _params[_index][0];
             slider.min = '0';
             slider.max = '1'; if(slider.id.endsWith("hpf.freq")) slider.max = '0.5584';
@@ -146,6 +148,7 @@
                slider.id.endsWith("invert") ){
                 slider.step = '1';
                 slider.style.width = "100px";
+                sliderContainer.style.justifyContent = 'space-around';
             }
             if(slider.id.endsWith("amp")){
                 slider.step = '1';
