@@ -1,0 +1,23 @@
+body {
+    font-family: Consolas, monospace;
+    font-size: 0.7em;
+    background: black;
+    color: white;
+}
+
+input[type=range] {
+    pointer-events: none;
+}
+input[type=range]::-moz-range-thumb {
+    pointer-events: auto !important;
+}
+input[type=range]::-ms-thumb {
+    pointer-events: auto !important;
+}
+input[type=range]::-webkit-slider-thumb {
+    pointer-events: auto !important;
+}
+
+.slider{
+    
+}
