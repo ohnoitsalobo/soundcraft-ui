@@ -3,11 +3,12 @@
 My attempt to build a basic HTML page that can control desired aspects of the Soundcraft UI series digital mixers.  
 This webpage SHOULD work with Ui12 and Ui16 mixers directly. Be sure to change the given IP address in the javascript section of the HTML to match your own mixer's IP address.  
 I will attempt to gain access to a Ui24 to test as well, but I expect it should work just as well.  
+The webpage `uidata_display.html` only **displays** the incoming control data and RTA data, and cannot send commands back to the mixer.  
+The webpage `index.html` displays the current values of nearly all internal mixer control values., and allows manipulation of said values using sliders. USE WITH CARE.  
 This was made possible through code from https://blechtrottel.net/en/jswebsockets.html
 
 At the moment, the HTML page / JS can read all messages coming from the mixer, and just displays them on the page with zero adjustment.  
-The mixer also sends RTA messages (spectrum analyzer values) in an encoded string.
-The webpage decodes this and displays the RTA as a bar graph.
+The mixer also sends RTA messages (spectrum analyzer values) in an encoded string. The webpage decodes this and displays the RTA as a bar graph.
 
 You can control the mixer directly by sending a message through the developer console like this: `socket.send("3:::SETD^i.3.mute^0")` where you can replace the message after "SETD^" with any of the supported messages in the mixer.  
 You'll want to script that with sliders and knobs, etc. This can also be used with network-enabled devices like Arduino (with the network shield) or Espressif ESP 8266/32 series, or Raspberry Pi.  
@@ -15,7 +16,8 @@ You'll want to script that with sliders and knobs, etc. This can also be used wi
 Using this, it would be possible to translate the messages to and from MIDI signals if you have the programming knowledge.
 
 **DISCLAIMER: Please note that, with some exceptions, the mixer only accepts fader/slider values between 0 and 1, and sending values outside this range may cause unintended behaviour.  
-I am not responsible for your mixer's safety. Use this script with care. Using this script to modify mixer values also does not currently respect stereo inputs / ouputs configuration.**
+Using this script to modify mixer values also does not currently respect stereo inputs / outputs configuration.  
+I am not responsible for your mixer's safety or for your live mix. Use this script with care.**
 
 You can fetch the initial starting values of the mixer from a JSON file located at `http://[your-mixer-ip]/js/initparams.js` OR parse the intial values from the Websocket when initially connecting to the mixer.
 
