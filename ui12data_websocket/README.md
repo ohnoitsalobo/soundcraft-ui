@@ -1,28 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soundcraft UI Digitech</title>
-    <link href="style.css" rel="stylesheet" />
-</head>
+## uidata_websocket
 
-<body onload="createElements();">
-    
-    <div id="content">
-        
-    </div>
+My attempt to build a basic HTML page that can control desired aspects of the Soundcraft Ui series digital mixers.  
+This webpage SHOULD work with the Soundcraft Ui12 directly. Be sure to change the given IP address in the javascript section of the HTML to match your own mixer's IP address.  
+I will attempt to gain access to a Ui16 and/or Ui24 to test as well, but I expect it should work just as well. Modifications to the code would be required.  
+The webpage `uidata_display.html` only **displays** the incoming control data and RTA data, and cannot send commands back to the mixer.  
+The webpage `index.html` displays the current values of nearly all internal mixer control values, and allows manipulation of said values using sliders. USE WITH CARE.  
+This was made possible through code from https://blechtrottel.net/en/jswebsockets.html
 
-    <!-- mixer websocket messages to display here -->
-    <div id="messages" style="display: none;"></div>
+You can control the mixer directly by sending a WebSocket message like this: `socket.send("3:::SETD^i.3.mute^0")` where you can replace the message after "SETD^" with any of the supported messages in the mixer.  
+You'll want to script that with sliders and knobs, etc. This can also be used with network-enabled devices like Arduino (with the network shield) or Espressif ESP 8266/32 series, or Raspberry Pi.  
 
-    <script src="script.js" type="text/javascript"></script>
-</body>
-</html>
+Using this, it would be possible to translate the messages to and from MIDI signals if you have the programming knowledge.
 
-<!--  -- >
+**DISCLAIMER: Please note that, with some exceptions, the mixer only accepts fader/slider values between 0 and 1, and sending values outside this range may cause unintended behaviour.  
+Using this script to modify mixer values also does not currently respect stereo inputs / outputs configuration.  
+I am not responsible for your mixer's safety or for your live mix. Use this script with care.**
 
+You can fetch the initial starting values of the mixer from a JSON file located at `http://[your-mixer-ip]/js/initparams.js` OR parse the intial values from the Websocket when initially connecting to the mixer.
 
+EXAMPLE UI12 OUTPUT DATA (all are valid inputs for controlling the mixer).  
+Ui16 and Ui24 will have correspondingly more data as they have more inputs and outputs to control.  
+Ui24 in particular will have a lot more as it also has patching information to synchronize.
+
+```
+## INPUT 1
         SETD^i.0.aux.0.mute^0
         SETD^i.0.aux.0.pan^0.5
         SETD^i.0.aux.0.post^0
@@ -39,25 +40,23 @@
         SETD^i.0.aux.3.pan^0.5
         SETD^i.0.aux.3.post^0
         SETD^i.0.aux.3.value^0
-    //  SETD^i.0.color^0
+        SETD^i.0.color^0
         SETD^i.0.deesser.enabled^0
         SETD^i.0.deesser.freq^0.773310034
         SETD^i.0.deesser.ratio^0.4
         SETD^i.0.deesser.threshold^0.46875
-        SETD^i.0.gain^0
-        SETD^i.0.hiz^0
+        SETD^i.0.digitech.amp^0
+        SETD^i.0.digitech.bass^0.5
+        SETD^i.0.digitech.cab^0
         SETD^i.0.digitech.enabled^0
         SETD^i.0.digitech.gain^0.75
         SETD^i.0.digitech.level^0.5
-        SETD^i.0.digitech.amp^0
-        SETD^i.0.digitech.cab^0
-        SETD^i.0.digitech.bass^0.5
-    //  SETD^i.0.digitech.mid^0.5
+        SETD^i.0.digitech.mid^0.5
         SETD^i.0.digitech.treble^0.5
         SETD^i.0.disablegain^0
-    //  SETD^i.0.dyn.attack^0.34375
+        SETD^i.0.dyn.attack^0.34375
         SETD^i.0.dyn.bypass^0
-    //  SETD^i.0.dyn.gain^0.75
+        SETD^i.0.dyn.gain^0.75
         SETD^i.0.dyn.outgain^0.3334960938
         SETD^i.0.dyn.prmod^0
         SETD^i.0.dyn.ratio^1
@@ -65,9 +64,9 @@
         SETD^i.0.dyn.softknee^0
         SETD^i.0.dyn.threshold^0.875
         SETD^i.0.gate.attack^0
-    //  SETD^i.0.gate.bypass^0
+        SETD^i.0.gate.bypass^0
         SETD^i.0.gate.depth^0
-    //  SETD^i.0.gate.enabled^1
+        SETD^i.0.gate.enabled^1
         SETD^i.0.gate.hold^0.3042441765
         SETD^i.0.gate.prmod^0
         SETD^i.0.gate.release^0.3150737134
@@ -82,13 +81,13 @@
         SETD^i.0.eq.b3.gain^0.5
         SETD^i.0.eq.b3.q^0.5252185347
         SETD^i.0.eq.b4.freq^0.887124964
-    //  SETD^i.0.eq.b4.gain^0.5
-    //  SETD^i.0.eq.b4.q^0.5252185347
-    //  SETD^i.0.eq.b5.freq^0.9542171999
+        SETD^i.0.eq.b4.gain^0.5
+        SETD^i.0.eq.b4.q^0.5252185347
+        SETD^i.0.eq.b5.freq^0.9542171999
         SETD^i.0.eq.b5.gain^0.5
-    //  SETD^i.0.eq.b5.q^0.5252185347
+        SETD^i.0.eq.b5.q^0.5252185347
         SETD^i.0.eq.bypass^0
-    //  SETD^i.0.eq.easy^0
+        SETD^i.0.eq.easy^0
         SETD^i.0.eq.hpf.freq^0
         SETD^i.0.eq.prmod^0
         SETD^i.0.forceunmute^0
@@ -100,17 +99,19 @@
         SETD^i.0.fx.2.value^0
         SETD^i.0.fx.3.mute^0
         SETD^i.0.fx.3.value^0
+        SETD^i.0.gain^0
+        SETD^i.0.hiz^0
         SETD^i.0.invert^0
-    //  SETD^i.0.mgmask^5
+        SETD^i.0.mgmask^5
         SETD^i.0.mix^0
         SETD^i.0.mute^0
         SETD^i.0.pan^0.5
         SETD^i.0.phantom^0
-    //  SETD^i.0.safe^0
+        SETD^i.0.safe^0
         SETD^i.0.solo^0
-    //  SETD^i.0.stereoIndex^-1
-    //  SETD^i.0.subgroup^-1
-
+        SETD^i.0.stereoIndex^-1
+        SETD^i.0.subgroup^-1
+## INPUT 2
         SETD^i.1.aux.0.mute^0
         SETD^i.1.aux.0.pan^0.5
         SETD^i.1.aux.0.post^0
@@ -127,7 +128,7 @@
         SETD^i.1.aux.3.pan^0.5
         SETD^i.1.aux.3.post^0
         SETD^i.1.aux.3.value^0
-    //  SETD^i.1.color^0
+        SETD^i.1.color^0
         SETD^i.1.deesser.enabled^0
         SETD^i.1.deesser.freq^0.773310034
         SETD^i.1.deesser.ratio^0.4
@@ -140,12 +141,12 @@
         SETD^i.1.digitech.level^0.5
         SETD^i.1.digitech.mid^0.5
         SETD^i.1.digitech.treble^0.5
-    //  SETD^i.1.disablegain^0
+        SETD^i.1.disablegain^0
         SETD^i.1.dyn.attack^0.34375
         SETD^i.1.dyn.bypass^0
-    //  SETD^i.1.dyn.gain^0.75
+        SETD^i.1.dyn.gain^0.75
         SETD^i.1.dyn.outgain^0.3334960938
-    //  SETD^i.1.dyn.prmod^0
+        SETD^i.1.dyn.prmod^0
         SETD^i.1.dyn.ratio^1
         SETD^i.1.dyn.release^0.4887695312
         SETD^i.1.dyn.softknee^0
@@ -153,9 +154,9 @@
         SETD^i.1.gate.attack^0
         SETD^i.1.gate.bypass^0
         SETD^i.1.gate.depth^0
-    //  SETD^i.1.gate.enabled^1
+        SETD^i.1.gate.enabled^1
         SETD^i.1.gate.hold^0.3042441765
-    //  SETD^i.1.gate.prmod^0
+        SETD^i.1.gate.prmod^0
         SETD^i.1.gate.release^0.3150737134
         SETD^i.1.gate.thresh^0
         SETD^i.1.eq.b1.freq^0.3286901902
@@ -170,13 +171,13 @@
         SETD^i.1.eq.b4.freq^0.887124964
         SETD^i.1.eq.b4.gain^0.5
         SETD^i.1.eq.b4.q^0.5252185347
-    //  SETD^i.1.eq.b5.freq^0.9542171999
-    //  SETD^i.1.eq.b5.gain^0.5
-    //  SETD^i.1.eq.b5.q^0.5252185347
+        SETD^i.1.eq.b5.freq^0.9542171999
+        SETD^i.1.eq.b5.gain^0.5
+        SETD^i.1.eq.b5.q^0.5252185347
         SETD^i.1.eq.bypass^0
-    //  SETD^i.1.eq.easy^0
+        SETD^i.1.eq.easy^0
         SETD^i.1.eq.hpf.freq^0
-    //  SETD^i.1.eq.prmod^0
+        SETD^i.1.eq.prmod^0
         SETD^i.1.forceunmute^0
         SETD^i.1.fx.0.mute^0
         SETD^i.1.fx.0.value^0
@@ -189,16 +190,16 @@
         SETD^i.1.gain^0
         SETD^i.1.hiz^0
         SETD^i.1.invert^0
-    //  SETD^i.1.mgmask^9
+        SETD^i.1.mgmask^9
         SETD^i.1.mix^0
         SETD^i.1.mute^0
         SETD^i.1.pan^0.5
         SETD^i.1.phantom^0
-    //  SETD^i.1.safe^0
+        SETD^i.1.safe^0
         SETD^i.1.solo^0
-    //  SETD^i.1.stereoIndex^-1
-    //  SETD^i.1.subgroup^-1
-
+        SETD^i.1.stereoIndex^-1
+        SETD^i.1.subgroup^-1
+## INPUT 3
         SETD^i.2.aux.0.mute^0
         SETD^i.2.aux.0.pan^0.5
         SETD^i.2.aux.0.post^0
@@ -215,17 +216,17 @@
         SETD^i.2.aux.3.pan^0.5
         SETD^i.2.aux.3.post^0
         SETD^i.2.aux.3.value^0
-    //  SETD^i.2.color^0
+        SETD^i.2.color^0
         SETD^i.2.deesser.enabled^0
         SETD^i.2.deesser.freq^0.773310034
         SETD^i.2.deesser.ratio^0.4
         SETD^i.2.deesser.threshold^0.46875
-    //  SETD^i.2.disablegain^0
+        SETD^i.2.disablegain^0
         SETD^i.2.dyn.attack^0.34375
         SETD^i.2.dyn.bypass^0
-    //  SETD^i.2.dyn.gain^0.75
+        SETD^i.2.dyn.gain^0.75
         SETD^i.2.dyn.outgain^0.3334960938
-    //  SETD^i.2.dyn.prmod^0
+        SETD^i.2.dyn.prmod^0
         SETD^i.2.dyn.ratio^1
         SETD^i.2.dyn.release^0.4887695312
         SETD^i.2.dyn.softknee^0
@@ -233,9 +234,9 @@
         SETD^i.2.gate.attack^0
         SETD^i.2.gate.bypass^0
         SETD^i.2.gate.depth^0
-    //  SETD^i.2.gate.enabled^1
+        SETD^i.2.gate.enabled^1
         SETD^i.2.gate.hold^0.3042441765
-    //  SETD^i.2.gate.prmod^0
+        SETD^i.2.gate.prmod^0
         SETD^i.2.gate.release^0.3150737134
         SETD^i.2.gate.thresh^0
         SETD^i.2.eq.b1.freq^0.3286901902
@@ -250,13 +251,13 @@
         SETD^i.2.eq.b4.freq^0.887124964
         SETD^i.2.eq.b4.gain^0.5
         SETD^i.2.eq.b4.q^0.5252185347
-    //  SETD^i.2.eq.b5.freq^0.9542171999
-    //  SETD^i.2.eq.b5.gain^0.5
-    //  SETD^i.2.eq.b5.q^0.5252185347
+        SETD^i.2.eq.b5.freq^0.9542171999
+        SETD^i.2.eq.b5.gain^0.5
+        SETD^i.2.eq.b5.q^0.5252185347
         SETD^i.2.eq.bypass^0
-    //  SETD^i.2.eq.easy^0
+        SETD^i.2.eq.easy^0
         SETD^i.2.eq.hpf.freq^0
-    //  SETD^i.2.eq.prmod^0
+        SETD^i.2.eq.prmod^0
         SETD^i.2.forceunmute^0
         SETD^i.2.fx.0.mute^0
         SETD^i.2.fx.0.value^0
@@ -273,11 +274,11 @@
         SETD^i.2.mute^0
         SETD^i.2.pan^0.5
         SETD^i.2.phantom^0
-    //  SETD^i.2.safe^0
+        SETD^i.2.safe^0
         SETD^i.2.solo^0
-    //  SETD^i.2.stereoIndex^-1
-    //  SETD^i.2.subgroup^-1
-
+        SETD^i.2.stereoIndex^-1
+        SETD^i.2.subgroup^-1
+## INPUT 4
         SETD^i.3.aux.0.mute^0
         SETD^i.3.aux.0.pan^0.5
         SETD^i.3.aux.0.post^0
@@ -294,17 +295,17 @@
         SETD^i.3.aux.3.pan^0.5
         SETD^i.3.aux.3.post^0
         SETD^i.3.aux.3.value^0
-    //  SETD^i.3.color^0
+        SETD^i.3.color^0
         SETD^i.3.deesser.enabled^0
         SETD^i.3.deesser.freq^0.773310034
         SETD^i.3.deesser.ratio^0.4
         SETD^i.3.deesser.threshold^0.46875
-    //  SETD^i.3.disablegain^0
+        SETD^i.3.disablegain^0
         SETD^i.3.dyn.attack^0.34375
         SETD^i.3.dyn.bypass^0
-    //  SETD^i.3.dyn.gain^0.75
+        SETD^i.3.dyn.gain^0.75
         SETD^i.3.dyn.outgain^0.3334960938
-    //  SETD^i.3.dyn.prmod^0
+        SETD^i.3.dyn.prmod^0
         SETD^i.3.dyn.ratio^1
         SETD^i.3.dyn.release^0.4887695312
         SETD^i.3.dyn.softknee^0
@@ -312,9 +313,9 @@
         SETD^i.3.gate.attack^0
         SETD^i.3.gate.bypass^0
         SETD^i.3.gate.depth^0
-    //  SETD^i.3.gate.enabled^1
+        SETD^i.3.gate.enabled^1
         SETD^i.3.gate.hold^0.3042441765
-    //  SETD^i.3.gate.prmod^0
+        SETD^i.3.gate.prmod^0
         SETD^i.3.gate.release^0.3150737134
         SETD^i.3.gate.thresh^0
         SETD^i.3.eq.b1.freq^0.3286901902
@@ -329,13 +330,13 @@
         SETD^i.3.eq.b4.freq^0.887124964
         SETD^i.3.eq.b4.gain^0.5
         SETD^i.3.eq.b4.q^0.5252185347
-    //  SETD^i.3.eq.b5.freq^0.9542171999
-    //  SETD^i.3.eq.b5.gain^0.5
-    //  SETD^i.3.eq.b5.q^0.5252185347
+        SETD^i.3.eq.b5.freq^0.9542171999
+        SETD^i.3.eq.b5.gain^0.5
+        SETD^i.3.eq.b5.q^0.5252185347
         SETD^i.3.eq.bypass^0
-    //  SETD^i.3.eq.easy^0
+        SETD^i.3.eq.easy^0
         SETD^i.3.eq.hpf.freq^0
-    //  SETD^i.3.eq.prmod^0
+        SETD^i.3.eq.prmod^0
         SETD^i.3.forceunmute^0
         SETD^i.3.fx.0.mute^0
         SETD^i.3.fx.0.value^0
@@ -352,11 +353,11 @@
         SETD^i.3.mute^0
         SETD^i.3.pan^0.5
         SETD^i.3.phantom^0
-    //  SETD^i.3.safe^0
+        SETD^i.3.safe^0
         SETD^i.3.solo^0
-    //  SETD^i.3.stereoIndex^-1
-    //  SETD^i.3.subgroup^-1
-
+        SETD^i.3.stereoIndex^-1
+        SETD^i.3.subgroup^-1
+## INPUT 5
         SETD^i.4.aux.0.mute^0
         SETD^i.4.aux.0.pan^0.5
         SETD^i.4.aux.0.post^0
@@ -373,17 +374,17 @@
         SETD^i.4.aux.3.pan^0.5
         SETD^i.4.aux.3.post^0
         SETD^i.4.aux.3.value^0
-    //  SETD^i.4.color^0
+        SETD^i.4.color^0
         SETD^i.4.deesser.enabled^0
         SETD^i.4.deesser.freq^0.773310034
         SETD^i.4.deesser.ratio^0.4
         SETD^i.4.deesser.threshold^0.46875
-    //  SETD^i.4.disablegain^0
+        SETD^i.4.disablegain^0
         SETD^i.4.dyn.attack^0.34375
         SETD^i.4.dyn.bypass^0
-    //  SETD^i.4.dyn.gain^0.75
+        SETD^i.4.dyn.gain^0.75
         SETD^i.4.dyn.outgain^0.3334960938
-    //  SETD^i.4.dyn.prmod^0
+        SETD^i.4.dyn.prmod^0
         SETD^i.4.dyn.ratio^1
         SETD^i.4.dyn.release^0.4887695312
         SETD^i.4.dyn.softknee^0
@@ -391,9 +392,9 @@
         SETD^i.4.gate.attack^0
         SETD^i.4.gate.bypass^0
         SETD^i.4.gate.depth^0
-    //  SETD^i.4.gate.enabled^1
+        SETD^i.4.gate.enabled^1
         SETD^i.4.gate.hold^0.3042441765
-    //  SETD^i.4.gate.prmod^0
+        SETD^i.4.gate.prmod^0
         SETD^i.4.gate.release^0.3150737134
         SETD^i.4.gate.thresh^0
         SETD^i.4.eq.b1.freq^0.3286901902
@@ -408,13 +409,13 @@
         SETD^i.4.eq.b4.freq^0.887124964
         SETD^i.4.eq.b4.gain^0.5
         SETD^i.4.eq.b4.q^0.5252185347
-    //  SETD^i.4.eq.b5.freq^0.9542171999
-    //  SETD^i.4.eq.b5.gain^0.5
-    //  SETD^i.4.eq.b5.q^0.5252185347
+        SETD^i.4.eq.b5.freq^0.9542171999
+        SETD^i.4.eq.b5.gain^0.5
+        SETD^i.4.eq.b5.q^0.5252185347
         SETD^i.4.eq.bypass^0
-    //  SETD^i.4.eq.easy^0
+        SETD^i.4.eq.easy^0
         SETD^i.4.eq.hpf.freq^0
-    //  SETD^i.4.eq.prmod^0
+        SETD^i.4.eq.prmod^0
         SETD^i.4.forceunmute^0
         SETD^i.4.fx.0.mute^0
         SETD^i.4.fx.0.value^0
@@ -431,11 +432,11 @@
         SETD^i.4.mute^0
         SETD^i.4.pan^0.5
         SETD^i.4.phantom^0
-    //  SETD^i.4.safe^0
+        SETD^i.4.safe^0
         SETD^i.4.solo^0
-    //  SETD^i.4.stereoIndex^-1
-    //  SETD^i.4.subgroup^-1
-
+        SETD^i.4.stereoIndex^-1
+        SETD^i.4.subgroup^-1
+## INPUT 6
         SETD^i.5.aux.0.mute^0
         SETD^i.5.aux.0.pan^0.5
         SETD^i.5.aux.0.post^0
@@ -452,17 +453,17 @@
         SETD^i.5.aux.3.pan^0.5
         SETD^i.5.aux.3.post^0
         SETD^i.5.aux.3.value^0
-    //  SETD^i.5.color^0
+        SETD^i.5.color^0
         SETD^i.5.deesser.enabled^0
         SETD^i.5.deesser.freq^0.773310034
         SETD^i.5.deesser.ratio^0.4
         SETD^i.5.deesser.threshold^0.46875
-    //  SETD^i.5.disablegain^0
+        SETD^i.5.disablegain^0
         SETD^i.5.dyn.attack^0.34375
         SETD^i.5.dyn.bypass^0
-    //  SETD^i.5.dyn.gain^0.75
+        SETD^i.5.dyn.gain^0.75
         SETD^i.5.dyn.outgain^0.3334960938
-    //  SETD^i.5.dyn.prmod^0
+        SETD^i.5.dyn.prmod^0
         SETD^i.5.dyn.ratio^1
         SETD^i.5.dyn.release^0.4887695312
         SETD^i.5.dyn.softknee^0
@@ -470,9 +471,9 @@
         SETD^i.5.gate.attack^0
         SETD^i.5.gate.bypass^0
         SETD^i.5.gate.depth^0
-    //  SETD^i.5.gate.enabled^1
+        SETD^i.5.gate.enabled^1
         SETD^i.5.gate.hold^0.3042441765
-    //  SETD^i.5.gate.prmod^0
+        SETD^i.5.gate.prmod^0
         SETD^i.5.gate.release^0.3150737134
         SETD^i.5.gate.thresh^0
         SETD^i.5.eq.b1.freq^0.3286901902
@@ -487,13 +488,13 @@
         SETD^i.5.eq.b4.freq^0.887124964
         SETD^i.5.eq.b4.gain^0.5
         SETD^i.5.eq.b4.q^0.5252185347
-    //  SETD^i.5.eq.b5.freq^0.9542171999
-    //  SETD^i.5.eq.b5.gain^0.5
-    //  SETD^i.5.eq.b5.q^0.5252185347
+        SETD^i.5.eq.b5.freq^0.9542171999
+        SETD^i.5.eq.b5.gain^0.5
+        SETD^i.5.eq.b5.q^0.5252185347
         SETD^i.5.eq.bypass^0
-    //  SETD^i.5.eq.easy^0
+        SETD^i.5.eq.easy^0
         SETD^i.5.eq.hpf.freq^0
-    //  SETD^i.5.eq.prmod^0
+        SETD^i.5.eq.prmod^0
         SETD^i.5.forceunmute^0
         SETD^i.5.fx.0.mute^0
         SETD^i.5.fx.0.value^0
@@ -510,11 +511,11 @@
         SETD^i.5.mute^0
         SETD^i.5.pan^0.5
         SETD^i.5.phantom^0
-    //  SETD^i.5.safe^0
+        SETD^i.5.safe^0
         SETD^i.5.solo^0
-    //  SETD^i.5.stereoIndex^-1
-    //  SETD^i.5.subgroup^-1
-
+        SETD^i.5.stereoIndex^-1
+        SETD^i.5.subgroup^-1
+## INPUT 7
         SETD^i.6.aux.0.mute^0
         SETD^i.6.aux.0.pan^0.5
         SETD^i.6.aux.0.post^0
@@ -531,17 +532,17 @@
         SETD^i.6.aux.3.pan^0.5
         SETD^i.6.aux.3.post^0
         SETD^i.6.aux.3.value^0
-    //  SETD^i.6.color^0
+        SETD^i.6.color^0
         SETD^i.6.deesser.enabled^0
         SETD^i.6.deesser.freq^0.773310034
         SETD^i.6.deesser.ratio^0.4
         SETD^i.6.deesser.threshold^0.46875
-    //  SETD^i.6.disablegain^0
+        SETD^i.6.disablegain^0
         SETD^i.6.dyn.attack^0.34375
         SETD^i.6.dyn.bypass^0
-    //  SETD^i.6.dyn.gain^0.75
+        SETD^i.6.dyn.gain^0.75
         SETD^i.6.dyn.outgain^0.3334960938
-    //  SETD^i.6.dyn.prmod^0
+        SETD^i.6.dyn.prmod^0
         SETD^i.6.dyn.ratio^1
         SETD^i.6.dyn.release^0.4887695312
         SETD^i.6.dyn.softknee^0
@@ -549,9 +550,9 @@
         SETD^i.6.gate.attack^0
         SETD^i.6.gate.bypass^0
         SETD^i.6.gate.depth^0
-    //  SETD^i.6.gate.enabled^1
+        SETD^i.6.gate.enabled^1
         SETD^i.6.gate.hold^0.3042441765
-    //  SETD^i.6.gate.prmod^0
+        SETD^i.6.gate.prmod^0
         SETD^i.6.gate.release^0.3150737134
         SETD^i.6.gate.thresh^0
         SETD^i.6.eq.b1.freq^0.3286901902
@@ -566,13 +567,13 @@
         SETD^i.6.eq.b4.freq^0.887124964
         SETD^i.6.eq.b4.gain^0.5
         SETD^i.6.eq.b4.q^0.5252185347
-    //  SETD^i.6.eq.b5.freq^0.9542171999
-    //  SETD^i.6.eq.b5.gain^0.5
-    //  SETD^i.6.eq.b5.q^0.5252185347
+        SETD^i.6.eq.b5.freq^0.9542171999
+        SETD^i.6.eq.b5.gain^0.5
+        SETD^i.6.eq.b5.q^0.5252185347
         SETD^i.6.eq.bypass^0
-    //  SETD^i.6.eq.easy^0
+        SETD^i.6.eq.easy^0
         SETD^i.6.eq.hpf.freq^0
-    //  SETD^i.6.eq.prmod^0
+        SETD^i.6.eq.prmod^0
         SETD^i.6.forceunmute^0
         SETD^i.6.fx.0.mute^0
         SETD^i.6.fx.0.value^0
@@ -589,11 +590,11 @@
         SETD^i.6.mute^0
         SETD^i.6.pan^0.5
         SETD^i.6.phantom^0
-    //  SETD^i.6.safe^0
+        SETD^i.6.safe^0
         SETD^i.6.solo^0
-    //  SETD^i.6.stereoIndex^-1
-    //  SETD^i.6.subgroup^-1
-
+        SETD^i.6.stereoIndex^-1
+        SETD^i.6.subgroup^-1
+## INPUT 8
         SETD^i.7.aux.0.mute^0
         SETD^i.7.aux.0.pan^0.5
         SETD^i.7.aux.0.post^0
@@ -610,17 +611,17 @@
         SETD^i.7.aux.3.pan^0.5
         SETD^i.7.aux.3.post^0
         SETD^i.7.aux.3.value^0
-    //  SETD^i.7.color^0
+        SETD^i.7.color^0
         SETD^i.7.deesser.enabled^0
         SETD^i.7.deesser.freq^0.773310034
         SETD^i.7.deesser.ratio^0.4
         SETD^i.7.deesser.threshold^0.46875
-    //  SETD^i.7.disablegain^0
+        SETD^i.7.disablegain^0
         SETD^i.7.dyn.attack^0.34375
         SETD^i.7.dyn.bypass^0
-    //  SETD^i.7.dyn.gain^0.75
+        SETD^i.7.dyn.gain^0.75
         SETD^i.7.dyn.outgain^0.3334960938
-    //  SETD^i.7.dyn.prmod^0
+        SETD^i.7.dyn.prmod^0
         SETD^i.7.dyn.ratio^1
         SETD^i.7.dyn.release^0.4887695312
         SETD^i.7.dyn.softknee^0
@@ -628,9 +629,9 @@
         SETD^i.7.gate.attack^0
         SETD^i.7.gate.bypass^0
         SETD^i.7.gate.depth^0
-    //  SETD^i.7.gate.enabled^1
+        SETD^i.7.gate.enabled^1
         SETD^i.7.gate.hold^0.3042441765
-    //  SETD^i.7.gate.prmod^0
+        SETD^i.7.gate.prmod^0
         SETD^i.7.gate.release^0.3150737134
         SETD^i.7.gate.thresh^0
         SETD^i.7.eq.b1.freq^0.3286901902
@@ -645,13 +646,13 @@
         SETD^i.7.eq.b4.freq^0.887124964
         SETD^i.7.eq.b4.gain^0.5
         SETD^i.7.eq.b4.q^0.5252185347
-    //  SETD^i.7.eq.b5.freq^0.9542171999
-    //  SETD^i.7.eq.b5.gain^0.5
-    //  SETD^i.7.eq.b5.q^0.5252185347
+        SETD^i.7.eq.b5.freq^0.9542171999
+        SETD^i.7.eq.b5.gain^0.5
+        SETD^i.7.eq.b5.q^0.5252185347
         SETD^i.7.eq.bypass^0
-    //  SETD^i.7.eq.easy^0
+        SETD^i.7.eq.easy^0
         SETD^i.7.eq.hpf.freq^0
-    //  SETD^i.7.eq.prmod^0
+        SETD^i.7.eq.prmod^0
         SETD^i.7.forceunmute^0
         SETD^i.7.fx.0.mute^0
         SETD^i.7.fx.0.value^0
@@ -668,11 +669,11 @@
         SETD^i.7.mute^0
         SETD^i.7.pan^0.5
         SETD^i.7.phantom^0
-    //  SETD^i.7.safe^0
+        SETD^i.7.safe^0
         SETD^i.7.solo^0
-    //  SETD^i.7.stereoIndex^-1
-    //  SETD^i.7.subgroup^-1
-
+        SETD^i.7.stereoIndex^-1
+        SETD^i.7.subgroup^-1
+## LINE IN L
         SETD^l.0.aux.0.mute^0
         SETD^l.0.aux.0.pan^0.5
         SETD^l.0.aux.0.post^0
@@ -691,9 +692,9 @@
         SETD^l.0.aux.3.value^0
         SETD^l.0.dyn.attack^0.34375
         SETD^l.0.dyn.bypass^0
-    //  SETD^l.0.dyn.gain^0.75
+        SETD^l.0.dyn.gain^0.75
         SETD^l.0.dyn.outgain^0.3334960938
-    //  SETD^l.0.dyn.prmod^0
+        SETD^l.0.dyn.prmod^0
         SETD^l.0.dyn.ratio^1
         SETD^l.0.dyn.release^0.4887695312
         SETD^l.0.dyn.softknee^0
@@ -701,9 +702,9 @@
         SETD^l.0.gate.attack^0
         SETD^l.0.gate.bypass^0
         SETD^l.0.gate.depth^0
-    //  SETD^l.0.gate.enabled^1
+        SETD^l.0.gate.enabled^1
         SETD^l.0.gate.hold^0.3042441765
-    //  SETD^l.0.gate.prmod^0
+        SETD^l.0.gate.prmod^0
         SETD^l.0.gate.release^0.3150737134
         SETD^l.0.gate.thresh^0
         SETD^l.0.eq.b1.freq^0.3286901902
@@ -718,14 +719,14 @@
         SETD^l.0.eq.b4.freq^0.887124964
         SETD^l.0.eq.b4.gain^0.5
         SETD^l.0.eq.b4.q^0.5252185347
-    //  SETD^l.0.eq.b5.freq^0.9542171999
-    //  SETD^l.0.eq.b5.gain^0.5
-    //  SETD^l.0.eq.b5.q^0.5252185347
+        SETD^l.0.eq.b5.freq^0.9542171999
+        SETD^l.0.eq.b5.gain^0.5
+        SETD^l.0.eq.b5.q^0.5252185347
         SETD^l.0.eq.bypass^0
-    //  SETD^l.0.eq.easy^0
+        SETD^l.0.eq.easy^0
         SETD^l.0.eq.hpf.freq^0
-    //  SETD^l.0.eq.prmod^0
-    //  SETD^l.0.forceunmute^0
+        SETD^l.0.eq.prmod^0
+        SETD^l.0.forceunmute^0
         SETD^l.0.fx.0.mute^0
         SETD^l.0.fx.0.value^0
         SETD^l.0.fx.1.mute^0
@@ -736,16 +737,16 @@
         SETD^l.0.fx.3.value^0
         SETD^l.0.gain^0.4
         SETD^l.0.invert^0
-    //  SETD^l.0.mgmask^1
+        SETD^l.0.mgmask^1
         SETD^l.0.mix^0
         SETD^l.0.mute^0
         SETD^l.0.pan^0
-    //  SETD^l.0.phantom^0
-    //  SETD^l.0.safe^0
+        SETD^l.0.phantom^0
+        SETD^l.0.safe^0
         SETD^l.0.solo^0
-    //  SETD^l.0.stereoIndex^0
-    //  SETD^l.0.subgroup^-1
-
+        SETD^l.0.stereoIndex^0
+        SETD^l.0.subgroup^-1
+## LINE IN R
         SETD^l.1.aux.0.mute^0
         SETD^l.1.aux.0.pan^0.5
         SETD^l.1.aux.0.post^0
@@ -764,9 +765,9 @@
         SETD^l.1.aux.3.value^0
         SETD^l.1.dyn.attack^0.34375
         SETD^l.1.dyn.bypass^0
-    //  SETD^l.1.dyn.gain^0.75
+        SETD^l.1.dyn.gain^0.75
         SETD^l.1.dyn.outgain^0.3334960938
-    //  SETD^l.1.dyn.prmod^0
+        SETD^l.1.dyn.prmod^0
         SETD^l.1.dyn.ratio^1
         SETD^l.1.dyn.release^0.4887695312
         SETD^l.1.dyn.softknee^0
@@ -774,9 +775,9 @@
         SETD^l.1.gate.attack^0
         SETD^l.1.gate.bypass^0
         SETD^l.1.gate.depth^0
-    //  SETD^l.1.gate.enabled^1
+        SETD^l.1.gate.enabled^1
         SETD^l.1.gate.hold^0.3042441765
-    //  SETD^l.1.gate.prmod^0
+        SETD^l.1.gate.prmod^0
         SETD^l.1.gate.release^0.3150737134
         SETD^l.1.gate.thresh^0
         SETD^l.1.eq.b1.freq^0.3286901902
@@ -791,14 +792,14 @@
         SETD^l.1.eq.b4.freq^0.887124964
         SETD^l.1.eq.b4.gain^0.5
         SETD^l.1.eq.b4.q^0.5252185347
-    //  SETD^l.1.eq.b5.freq^0.9542171999
-    //  SETD^l.1.eq.b5.gain^0.5
-    //  SETD^l.1.eq.b5.q^0.5252185347
+        SETD^l.1.eq.b5.freq^0.9542171999
+        SETD^l.1.eq.b5.gain^0.5
+        SETD^l.1.eq.b5.q^0.5252185347
         SETD^l.1.eq.bypass^0
-    //  SETD^l.1.eq.easy^0
+        SETD^l.1.eq.easy^0
         SETD^l.1.eq.hpf.freq^0
-    //  SETD^l.1.eq.prmod^0
-    //  SETD^l.1.forceunmute^0
+        SETD^l.1.eq.prmod^0
+        SETD^l.1.forceunmute^0
         SETD^l.1.fx.0.mute^0
         SETD^l.1.fx.0.value^0
         SETD^l.1.fx.1.mute^0
@@ -809,16 +810,16 @@
         SETD^l.1.fx.3.value^0
         SETD^l.1.gain^0.4
         SETD^l.1.invert^0
-    //  SETD^l.1.mgmask^1
+        SETD^l.1.mgmask^1
         SETD^l.1.mix^0
         SETD^l.1.mute^0
         SETD^l.1.pan^1
-    //  SETD^l.1.phantom^0
-    //  SETD^l.1.safe^0
+        SETD^l.1.phantom^0
+        SETD^l.1.safe^0
         SETD^l.1.solo^0
-    //  SETD^l.1.stereoIndex^1
-    //  SETD^l.1.subgroup^-1
-
+        SETD^l.1.stereoIndex^1
+        SETD^l.1.subgroup^-1
+## USB L
         SETD^p.0.aux.0.mute^0
         SETD^p.0.aux.0.pan^0.5
         SETD^p.0.aux.0.post^0
@@ -837,9 +838,9 @@
         SETD^p.0.aux.3.value^0
         SETD^p.0.dyn.attack^0.34375
         SETD^p.0.dyn.bypass^0
-    //  SETD^p.0.dyn.gain^0.75
+        SETD^p.0.dyn.gain^0.75
         SETD^p.0.dyn.outgain^0.1562513035
-    //  SETD^p.0.dyn.prmod^1
+        SETD^p.0.dyn.prmod^1
         SETD^p.0.dyn.ratio^1
         SETD^p.0.dyn.release^0.4887695312
         SETD^p.0.dyn.softknee^0
@@ -847,9 +848,9 @@
         SETD^p.0.gate.attack^0
         SETD^p.0.gate.bypass^0
         SETD^p.0.gate.depth^0
-    //  SETD^p.0.gate.enabled^1
+        SETD^p.0.gate.enabled^1
         SETD^p.0.gate.hold^0.3042441765
-    //  SETD^p.0.gate.prmod^0
+        SETD^p.0.gate.prmod^0
         SETD^p.0.gate.release^0.3150737134
         SETD^p.0.gate.thresh^0
         SETD^p.0.eq.b1.freq^0.3286901902
@@ -864,13 +865,13 @@
         SETD^p.0.eq.b4.freq^0.887124964
         SETD^p.0.eq.b4.gain^0.5
         SETD^p.0.eq.b4.q^0.5252185347
-    //  SETD^p.0.eq.b5.freq^0.9542171999
-    //  SETD^p.0.eq.b5.gain^0.5
-    //  SETD^p.0.eq.b5.q^0.5252185347
+        SETD^p.0.eq.b5.freq^0.9542171999
+        SETD^p.0.eq.b5.gain^0.5
+        SETD^p.0.eq.b5.q^0.5252185347
         SETD^p.0.eq.bypass^0
-    //  SETD^p.0.eq.easy^0
+        SETD^p.0.eq.easy^0
         SETD^p.0.eq.hpf.freq^0
-    //  SETD^p.0.eq.prmod^1
+        SETD^p.0.eq.prmod^1
         SETD^p.0.forceunmute^0
         SETD^p.0.fx.0.mute^0
         SETD^p.0.fx.0.value^0
@@ -880,15 +881,15 @@
         SETD^p.0.fx.2.value^0
         SETD^p.0.fx.3.mute^0
         SETD^p.0.fx.3.value^0
-    //  SETD^p.0.mgmask^0
+        SETD^p.0.mgmask^0
         SETD^p.0.mix^0
         SETD^p.0.mute^0
         SETD^p.0.pan^0
-    //  SETD^p.0.safe^1
+        SETD^p.0.safe^1
         SETD^p.0.solo^0
-    //  SETD^p.0.stereoIndex^0
-    //  SETD^p.0.subgroup^-1
-
+        SETD^p.0.stereoIndex^0
+        SETD^p.0.subgroup^-1
+## USB R
         SETD^p.1.aux.0.mute^0
         SETD^p.1.aux.0.pan^0.5
         SETD^p.1.aux.0.post^0
@@ -907,9 +908,9 @@
         SETD^p.1.aux.3.value^0
         SETD^p.1.dyn.attack^0.34375
         SETD^p.1.dyn.bypass^0
-    //  SETD^p.1.dyn.gain^0.75
+        SETD^p.1.dyn.gain^0.75
         SETD^p.1.dyn.outgain^0.1562513035
-    //  SETD^p.1.dyn.prmod^1
+        SETD^p.1.dyn.prmod^1
         SETD^p.1.dyn.ratio^1
         SETD^p.1.dyn.release^0.4887695312
         SETD^p.1.dyn.softknee^0
@@ -917,9 +918,9 @@
         SETD^p.1.gate.attack^0
         SETD^p.1.gate.bypass^0
         SETD^p.1.gate.depth^0
-    //  SETD^p.1.gate.enabled^1
+        SETD^p.1.gate.enabled^1
         SETD^p.1.gate.hold^0.3042441765
-    //  SETD^p.1.gate.prmod^0
+        SETD^p.1.gate.prmod^0
         SETD^p.1.gate.release^0.3150737134
         SETD^p.1.gate.thresh^0
         SETD^p.1.eq.b1.freq^0.3286901902
@@ -934,13 +935,13 @@
         SETD^p.1.eq.b4.freq^0.887124964
         SETD^p.1.eq.b4.gain^0.5
         SETD^p.1.eq.b4.q^0.5252185347
-    //  SETD^p.1.eq.b5.freq^0.9542171999
-    //  SETD^p.1.eq.b5.gain^0.5
-    //  SETD^p.1.eq.b5.q^0.5252185347
+        SETD^p.1.eq.b5.freq^0.9542171999
+        SETD^p.1.eq.b5.gain^0.5
+        SETD^p.1.eq.b5.q^0.5252185347
         SETD^p.1.eq.bypass^0
-    //  SETD^p.1.eq.easy^0
+        SETD^p.1.eq.easy^0
         SETD^p.1.eq.hpf.freq^0
-    //  SETD^p.1.eq.prmod^1
+        SETD^p.1.eq.prmod^1
         SETD^p.1.forceunmute^0
         SETD^p.1.fx.0.mute^0
         SETD^p.1.fx.0.value^0
@@ -950,20 +951,20 @@
         SETD^p.1.fx.2.value^0
         SETD^p.1.fx.3.mute^0
         SETD^p.1.fx.3.value^0
-    //  SETD^p.1.mgmask^0
+        SETD^p.1.mgmask^0
         SETD^p.1.mix^0
         SETD^p.1.mute^0
         SETD^p.1.pan^1
-    //  SETD^p.1.safe^1
+        SETD^p.1.safe^1
         SETD^p.1.solo^0
-    //  SETD^p.1.stereoIndex^1
-    //  SETD^p.1.subgroup^-1
-
+        SETD^p.1.stereoIndex^1
+        SETD^p.1.subgroup^-1
+## GROUP 1
         SETD^s.0.dyn.attack^0.34375
         SETD^s.0.dyn.bypass^0
-    //  SETD^s.0.dyn.gain^0.75
+        SETD^s.0.dyn.gain^0.75
         SETD^s.0.dyn.outgain^0.3334960938
-    //  SETD^s.0.dyn.prmod^0
+        SETD^s.0.dyn.prmod^0
         SETD^s.0.dyn.ratio^1
         SETD^s.0.dyn.release^0.4887695312
         SETD^s.0.dyn.softknee^0
@@ -973,7 +974,7 @@
         SETD^s.0.gate.depth^0
         SETD^s.0.gate.enabled^1
         SETD^s.0.gate.hold^0.3042441765
-    //  SETD^s.0.gate.prmod^0
+        SETD^s.0.gate.prmod^0
         SETD^s.0.gate.release^0.3150737134
         SETD^s.0.gate.thresh^0
         SETD^s.0.eq.b1.freq^0.3286901902
@@ -988,14 +989,14 @@
         SETD^s.0.eq.b4.freq^0.887124964
         SETD^s.0.eq.b4.gain^0.5
         SETD^s.0.eq.b4.q^0.5252185347
-    //  SETD^s.0.eq.b5.freq^0.9542171999
-    //  SETD^s.0.eq.b5.gain^0.5
-    //  SETD^s.0.eq.b5.q^0.5252185347
+        SETD^s.0.eq.b5.freq^0.9542171999
+        SETD^s.0.eq.b5.gain^0.5
+        SETD^s.0.eq.b5.q^0.5252185347
         SETD^s.0.eq.bypass^0
-    //  SETD^s.0.eq.easy^0
+        SETD^s.0.eq.easy^0
         SETD^s.0.eq.hpf.freq^0
-    //  SETD^s.0.eq.prmod^0
-    //  SETD^s.0.forceunmute^0
+        SETD^s.0.eq.prmod^0
+        SETD^s.0.forceunmute^0
         SETD^s.0.fx.0.mute^0
         SETD^s.0.fx.0.value^0
         SETD^s.0.fx.1.mute^0
@@ -1004,18 +1005,18 @@
         SETD^s.0.fx.2.value^0
         SETD^s.0.fx.3.mute^0
         SETD^s.0.fx.3.value^0
-    //  SETD^s.0.mgmask^0
+        SETD^s.0.mgmask^0
         SETD^s.0.mix^0.7647058824
         SETD^s.0.mute^0
         SETD^s.0.pan^0.5
-    //  SETD^s.0.safe^0
+        SETD^s.0.safe^0
         SETD^s.0.solo^0
-
+## GROUP 2
         SETD^s.1.dyn.attack^0.34375
         SETD^s.1.dyn.bypass^0
-    //  SETD^s.1.dyn.gain^0.75
+        SETD^s.1.dyn.gain^0.75
         SETD^s.1.dyn.outgain^0.3334960938
-    //  SETD^s.1.dyn.prmod^0
+        SETD^s.1.dyn.prmod^0
         SETD^s.1.dyn.ratio^1
         SETD^s.1.dyn.release^0.4887695312
         SETD^s.1.dyn.softknee^0
@@ -1025,7 +1026,7 @@
         SETD^s.1.gate.depth^0
         SETD^s.1.gate.enabled^1
         SETD^s.1.gate.hold^0.3042441765
-    //  SETD^s.1.gate.prmod^0
+        SETD^s.1.gate.prmod^0
         SETD^s.1.gate.release^0.3150737134
         SETD^s.1.gate.thresh^0
         SETD^s.1.eq.b1.freq^0.3286901902
@@ -1040,14 +1041,14 @@
         SETD^s.1.eq.b4.freq^0.887124964
         SETD^s.1.eq.b4.gain^0.5
         SETD^s.1.eq.b4.q^0.5252185347
-    //  SETD^s.1.eq.b5.freq^0.9542171999
-    //  SETD^s.1.eq.b5.gain^0.5
-    //  SETD^s.1.eq.b5.q^0.5252185347
+        SETD^s.1.eq.b5.freq^0.9542171999
+        SETD^s.1.eq.b5.gain^0.5
+        SETD^s.1.eq.b5.q^0.5252185347
         SETD^s.1.eq.bypass^0
-    //  SETD^s.1.eq.easy^0
+        SETD^s.1.eq.easy^0
         SETD^s.1.eq.hpf.freq^0
-    //  SETD^s.1.eq.prmod^0
-    //  SETD^s.1.forceunmute^0
+        SETD^s.1.eq.prmod^0
+        SETD^s.1.forceunmute^0
         SETD^s.1.fx.0.mute^0
         SETD^s.1.fx.0.value^0
         SETD^s.1.fx.1.mute^0
@@ -1056,18 +1057,18 @@
         SETD^s.1.fx.2.value^0
         SETD^s.1.fx.3.mute^0
         SETD^s.1.fx.3.value^0
-    //  SETD^s.1.mgmask^0
+        SETD^s.1.mgmask^0
         SETD^s.1.mix^0.7647058824
         SETD^s.1.mute^0
         SETD^s.1.pan^0.5
-    //  SETD^s.1.safe^0
+        SETD^s.1.safe^0
         SETD^s.1.solo^0
-
+## GROUP 3
         SETD^s.2.dyn.attack^0.34375
         SETD^s.2.dyn.bypass^0
-    //  SETD^s.2.dyn.gain^0.75
+        SETD^s.2.dyn.gain^0.75
         SETD^s.2.dyn.outgain^0.3334960938
-    //  SETD^s.2.dyn.prmod^0
+        SETD^s.2.dyn.prmod^0
         SETD^s.2.dyn.ratio^1
         SETD^s.2.dyn.release^0.4887695312
         SETD^s.2.dyn.softknee^0
@@ -1077,7 +1078,7 @@
         SETD^s.2.gate.depth^0
         SETD^s.2.gate.enabled^1
         SETD^s.2.gate.hold^0.3042441765
-    //  SETD^s.2.gate.prmod^0
+        SETD^s.2.gate.prmod^0
         SETD^s.2.gate.release^0.3150737134
         SETD^s.2.gate.thresh^0
         SETD^s.2.eq.b1.freq^0.3286901902
@@ -1092,14 +1093,14 @@
         SETD^s.2.eq.b4.freq^0.887124964
         SETD^s.2.eq.b4.gain^0.5
         SETD^s.2.eq.b4.q^0.5252185347
-    //  SETD^s.2.eq.b5.freq^0.9542171999
-    //  SETD^s.2.eq.b5.gain^0.5
-    //  SETD^s.2.eq.b5.q^0.5252185347
+        SETD^s.2.eq.b5.freq^0.9542171999
+        SETD^s.2.eq.b5.gain^0.5
+        SETD^s.2.eq.b5.q^0.5252185347
         SETD^s.2.eq.bypass^0
-    //  SETD^s.2.eq.easy^0
+        SETD^s.2.eq.easy^0
         SETD^s.2.eq.hpf.freq^0
-    //  SETD^s.2.eq.prmod^0
-    //  SETD^s.2.forceunmute^0
+        SETD^s.2.eq.prmod^0
+        SETD^s.2.forceunmute^0
         SETD^s.2.fx.0.mute^0
         SETD^s.2.fx.0.value^0
         SETD^s.2.fx.1.mute^0
@@ -1108,18 +1109,18 @@
         SETD^s.2.fx.2.value^0
         SETD^s.2.fx.3.mute^0
         SETD^s.2.fx.3.value^0
-    //  SETD^s.2.mgmask^0
+        SETD^s.2.mgmask^0
         SETD^s.2.mix^0.7647058824
         SETD^s.2.mute^0
         SETD^s.2.pan^0.5
-    //  SETD^s.2.safe^0
+        SETD^s.2.safe^0
         SETD^s.2.solo^0
-
+## GROUP 4
         SETD^s.3.dyn.attack^0.34375
         SETD^s.3.dyn.bypass^0
-    //  SETD^s.3.dyn.gain^0.75
+        SETD^s.3.dyn.gain^0.75
         SETD^s.3.dyn.outgain^0.3334960938
-    //  SETD^s.3.dyn.prmod^0
+        SETD^s.3.dyn.prmod^0
         SETD^s.3.dyn.ratio^1
         SETD^s.3.dyn.release^0.4887695312
         SETD^s.3.dyn.softknee^0
@@ -1129,7 +1130,7 @@
         SETD^s.3.gate.depth^0
         SETD^s.3.gate.enabled^1
         SETD^s.3.gate.hold^0.3042441765
-    //  SETD^s.3.gate.prmod^0
+        SETD^s.3.gate.prmod^0
         SETD^s.3.gate.release^0.3150737134
         SETD^s.3.gate.thresh^0
         SETD^s.3.eq.b1.freq^0.3286901902
@@ -1144,14 +1145,14 @@
         SETD^s.3.eq.b4.freq^0.887124964
         SETD^s.3.eq.b4.gain^0.5
         SETD^s.3.eq.b4.q^0.5252185347
-    //  SETD^s.3.eq.b5.freq^0.9542171999
-    //  SETD^s.3.eq.b5.gain^0.5
-    //  SETD^s.3.eq.b5.q^0.5252185347
+        SETD^s.3.eq.b5.freq^0.9542171999
+        SETD^s.3.eq.b5.gain^0.5
+        SETD^s.3.eq.b5.q^0.5252185347
         SETD^s.3.eq.bypass^0
-    //  SETD^s.3.eq.easy^0
+        SETD^s.3.eq.easy^0
         SETD^s.3.eq.hpf.freq^0
-    //  SETD^s.3.eq.prmod^0
-    //  SETD^s.3.forceunmute^0
+        SETD^s.3.eq.prmod^0
+        SETD^s.3.forceunmute^0
         SETD^s.3.fx.0.mute^0
         SETD^s.3.fx.0.value^0
         SETD^s.3.fx.1.mute^0
@@ -1160,13 +1161,13 @@
         SETD^s.3.fx.2.value^0
         SETD^s.3.fx.3.mute^0
         SETD^s.3.fx.3.value^0
-    //  SETD^s.3.mgmask^0
+        SETD^s.3.mgmask^0
         SETD^s.3.mix^0.7647058824
         SETD^s.3.mute^0
         SETD^s.3.pan^0.5
-    //  SETD^s.3.safe^0
+        SETD^s.3.safe^0
         SETD^s.3.solo^0
-
+## FX 1
         SETD^f.0.aux.0.mute^0
         SETD^f.0.aux.0.pan^0.5
         SETD^f.0.aux.0.post^0
@@ -1183,13 +1184,13 @@
         SETD^f.0.aux.3.pan^0.5
         SETD^f.0.aux.3.post^0
         SETD^f.0.aux.3.value^0
-    //  SETD^f.0.bpm^120
+        SETD^f.0.bpm^120
         SETD^f.0.bypass^0
         SETD^f.0.dyn.attack^0.34375
         SETD^f.0.dyn.bypass^0
-    //  SETD^f.0.dyn.gain^0.75
+        SETD^f.0.dyn.gain^0.75
         SETD^f.0.dyn.outgain^0.3334960938
-    //  SETD^f.0.dyn.prmod^0
+        SETD^f.0.dyn.prmod^0
         SETD^f.0.dyn.ratio^1
         SETD^f.0.dyn.release^0.4887695312
         SETD^f.0.dyn.softknee^0
@@ -1197,9 +1198,9 @@
         SETD^f.0.gate.attack^0
         SETD^f.0.gate.bypass^0
         SETD^f.0.gate.depth^0
-    //  SETD^f.0.gate.enabled^1
+        SETD^f.0.gate.enabled^1
         SETD^f.0.gate.hold^0.3042441765
-    //  SETD^f.0.gate.prmod^0
+        SETD^f.0.gate.prmod^0
         SETD^f.0.gate.release^0.3150737134
         SETD^f.0.gate.thresh^0
         SETD^f.0.eq.b1.freq^0.3286901902
@@ -1214,16 +1215,16 @@
         SETD^f.0.eq.b4.freq^0.887124964
         SETD^f.0.eq.b4.gain^0.5
         SETD^f.0.eq.b4.q^0.5252185347
-    //  SETD^f.0.eq.b5.freq^0.9542171999
-    //  SETD^f.0.eq.b5.gain^0.5
-    //  SETD^f.0.eq.b5.q^0.5252185347
+        SETD^f.0.eq.b5.freq^0.9542171999
+        SETD^f.0.eq.b5.gain^0.5
+        SETD^f.0.eq.b5.q^0.5252185347
         SETD^f.0.eq.bypass^0
-    //  SETD^f.0.eq.easy^0
+        SETD^f.0.eq.easy^0
         SETD^f.0.eq.hpf.freq^0
-    //  SETD^f.0.eq.prmod^0
-    //  SETD^f.0.forceunmute^0
-    //  SETD^f.0.fxtype^0
-    //  SETD^f.0.mgmask^0
+        SETD^f.0.eq.prmod^0
+        SETD^f.0.forceunmute^0
+        SETD^f.0.fxtype^0
+        SETD^f.0.mgmask^0
         SETD^f.0.mix^0.7647058824
         SETD^f.0.mute^0
         SETD^f.0.pan^0.5
@@ -1232,14 +1233,14 @@
         SETD^f.0.par3^0.5
         SETD^f.0.par4^1
         SETD^f.0.par5^0
-    //  SETD^f.0.par6^0
-    //  SETD^f.0.prmod^0
-    //  SETD^f.0.safe^0
-    //  SETD^f.0.smix^0.7647058824
+        SETD^f.0.par6^0
+        SETD^f.0.prmod^0
+        SETD^f.0.safe^0
+        SETD^f.0.smix^0.7647058824
         SETD^f.0.solo^0
-    //  SETD^f.0.span^0.5
-    //  SETD^f.0.subgroup^-1
-
+        SETD^f.0.span^0.5
+        SETD^f.0.subgroup^-1
+## FX 2
         SETD^f.1.aux.0.mute^0
         SETD^f.1.aux.0.pan^0.5
         SETD^f.1.aux.0.post^0
@@ -1256,13 +1257,13 @@
         SETD^f.1.aux.3.pan^0.5
         SETD^f.1.aux.3.post^0
         SETD^f.1.aux.3.value^0
-    //  SETD^f.1.bpm^120
+        SETD^f.1.bpm^120
         SETD^f.1.bypass^0
         SETD^f.1.dyn.attack^0.34375
         SETD^f.1.dyn.bypass^0
-    //  SETD^f.1.dyn.gain^0.75
+        SETD^f.1.dyn.gain^0.75
         SETD^f.1.dyn.outgain^0.3334960938
-    //  SETD^f.1.dyn.prmod^0
+        SETD^f.1.dyn.prmod^0
         SETD^f.1.dyn.ratio^1
         SETD^f.1.dyn.release^0.4887695312
         SETD^f.1.dyn.softknee^0
@@ -1270,9 +1271,9 @@
         SETD^f.1.gate.attack^0
         SETD^f.1.gate.bypass^0
         SETD^f.1.gate.depth^0
-    //  SETD^f.1.gate.enabled^1
+        SETD^f.1.gate.enabled^1
         SETD^f.1.gate.hold^0.3042441765
-    //  SETD^f.1.gate.prmod^0
+        SETD^f.1.gate.prmod^0
         SETD^f.1.gate.release^0.3150737134
         SETD^f.1.gate.thresh^0
         SETD^f.1.eq.b1.freq^0.3286901902
@@ -1287,16 +1288,16 @@
         SETD^f.1.eq.b4.freq^0.887124964
         SETD^f.1.eq.b4.gain^0.5
         SETD^f.1.eq.b4.q^0.5252185347
-    //  SETD^f.1.eq.b5.freq^0.9542171999
-    //  SETD^f.1.eq.b5.gain^0.5
-    //  SETD^f.1.eq.b5.q^0.5252185347
+        SETD^f.1.eq.b5.freq^0.9542171999
+        SETD^f.1.eq.b5.gain^0.5
+        SETD^f.1.eq.b5.q^0.5252185347
         SETD^f.1.eq.bypass^0
-    //  SETD^f.1.eq.easy^0
+        SETD^f.1.eq.easy^0
         SETD^f.1.eq.hpf.freq^0
-    //  SETD^f.1.eq.prmod^0
-    //  SETD^f.1.forceunmute^0
-    //  SETD^f.1.fxtype^1
-    //  SETD^f.1.mgmask^0
+        SETD^f.1.eq.prmod^0
+        SETD^f.1.forceunmute^0
+        SETD^f.1.fxtype^1
+        SETD^f.1.mgmask^0
         SETD^f.1.mix^0.7647058824
         SETD^f.1.mute^0
         SETD^f.1.pan^0.5
@@ -1304,15 +1305,15 @@
         SETD^f.1.par2^0.5
         SETD^f.1.par3^0.3000000119
         SETD^f.1.par4^1
-    //  SETD^f.1.par5^0
-    //  SETD^f.1.par6^0
-    //  SETD^f.1.prmod^0
-    //  SETD^f.1.safe^0
-    //  SETD^f.1.smix^0.7647058824
+        SETD^f.1.par5^0
+        SETD^f.1.par6^0
+        SETD^f.1.prmod^0
+        SETD^f.1.safe^0
+        SETD^f.1.smix^0.7647058824
         SETD^f.1.solo^0
-    //  SETD^f.1.span^0.5
-    //  SETD^f.1.subgroup^-1
-
+        SETD^f.1.span^0.5
+        SETD^f.1.subgroup^-1
+## FX 3
         SETD^f.2.aux.0.mute^0
         SETD^f.2.aux.0.pan^0.5
         SETD^f.2.aux.0.post^0
@@ -1329,13 +1330,13 @@
         SETD^f.2.aux.3.pan^0.5
         SETD^f.2.aux.3.post^0
         SETD^f.2.aux.3.value^0
-    //  SETD^f.2.bpm^120
+        SETD^f.2.bpm^120
         SETD^f.2.bypass^0
         SETD^f.2.dyn.attack^0.34375
         SETD^f.2.dyn.bypass^0
-    //  SETD^f.2.dyn.gain^0.75
+        SETD^f.2.dyn.gain^0.75
         SETD^f.2.dyn.outgain^0.3334960938
-    //  SETD^f.2.dyn.prmod^0
+        SETD^f.2.dyn.prmod^0
         SETD^f.2.dyn.ratio^1
         SETD^f.2.dyn.release^0.4887695312
         SETD^f.2.dyn.softknee^0
@@ -1343,9 +1344,9 @@
         SETD^f.2.gate.attack^0
         SETD^f.2.gate.bypass^0
         SETD^f.2.gate.depth^0
-    //  SETD^f.2.gate.enabled^1
+        SETD^f.2.gate.enabled^1
         SETD^f.2.gate.hold^0.3042441765
-    //  SETD^f.2.gate.prmod^0
+        SETD^f.2.gate.prmod^0
         SETD^f.2.gate.release^0.3150737134
         SETD^f.2.gate.thresh^0
         SETD^f.2.eq.b1.freq^0.3286901902
@@ -1360,32 +1361,32 @@
         SETD^f.2.eq.b4.freq^0.887124964
         SETD^f.2.eq.b4.gain^0.5
         SETD^f.2.eq.b4.q^0.5252185347
-    //  SETD^f.2.eq.b5.freq^0.9542171999
-    //  SETD^f.2.eq.b5.gain^0.5
-    //  SETD^f.2.eq.b5.q^0.5252185347
+        SETD^f.2.eq.b5.freq^0.9542171999
+        SETD^f.2.eq.b5.gain^0.5
+        SETD^f.2.eq.b5.q^0.5252185347
         SETD^f.2.eq.bypass^0
-    //  SETD^f.2.eq.easy^0
+        SETD^f.2.eq.easy^0
         SETD^f.2.eq.hpf.freq^0
-    //  SETD^f.2.eq.prmod^0
-    //  SETD^f.2.forceunmute^0
-    //  SETD^f.2.fxtype^3
-    //  SETD^f.2.mgmask^0
+        SETD^f.2.eq.prmod^0
+        SETD^f.2.forceunmute^0
+        SETD^f.2.fxtype^2
+        SETD^f.2.mgmask^0
         SETD^f.2.mix^0.7647058824
         SETD^f.2.mute^0
         SETD^f.2.pan^0.5
-        SETD^f.2.par1^0.5
-        SETD^f.2.par2^0.400000006
-        SETD^f.2.par3^0.5
-    //  SETD^f.2.par4^1
-    //  SETD^f.2.par5^0
-    //  SETD^f.2.par6^0
-    //  SETD^f.2.prmod^0
-    //  SETD^f.2.safe^0
-    //  SETD^f.2.smix^0.7647058824
+        SETD^f.2.par1^0.400000006
+        SETD^f.2.par2^0.5
+        SETD^f.2.par3^1
+        SETD^f.2.par4^0
+        SETD^f.2.par5^0
+        SETD^f.2.par6^0
+        SETD^f.2.prmod^0
+        SETD^f.2.safe^0
+        SETD^f.2.smix^0.7647058824
         SETD^f.2.solo^0
-    //  SETD^f.2.span^0.5
-    //  SETD^f.2.subgroup^-1
-
+        SETD^f.2.span^0.5
+        SETD^f.2.subgroup^-1
+## FX 4
         SETD^f.3.aux.0.mute^0
         SETD^f.3.aux.0.pan^0.5
         SETD^f.3.aux.0.post^0
@@ -1402,13 +1403,13 @@
         SETD^f.3.aux.3.pan^0.5
         SETD^f.3.aux.3.post^0
         SETD^f.3.aux.3.value^0
-    //  SETD^f.3.bpm^120
+        SETD^f.3.bpm^120
         SETD^f.3.bypass^0
         SETD^f.3.dyn.attack^0.34375
         SETD^f.3.dyn.bypass^0
-    //  SETD^f.3.dyn.gain^0.75
+        SETD^f.3.dyn.gain^0.75
         SETD^f.3.dyn.outgain^0.3334960938
-    //  SETD^f.3.dyn.prmod^0
+        SETD^f.3.dyn.prmod^0
         SETD^f.3.dyn.ratio^1
         SETD^f.3.dyn.release^0.4887695312
         SETD^f.3.dyn.softknee^0
@@ -1416,9 +1417,9 @@
         SETD^f.3.gate.attack^0
         SETD^f.3.gate.bypass^0
         SETD^f.3.gate.depth^0
-    //  SETD^f.3.gate.enabled^1
+        SETD^f.3.gate.enabled^1
         SETD^f.3.gate.hold^0.3042441765
-    //  SETD^f.3.gate.prmod^0
+        SETD^f.3.gate.prmod^0
         SETD^f.3.gate.release^0.3150737134
         SETD^f.3.gate.thresh^0
         SETD^f.3.eq.b1.freq^0.3286901902
@@ -1433,16 +1434,16 @@
         SETD^f.3.eq.b4.freq^0.887124964
         SETD^f.3.eq.b4.gain^0.5
         SETD^f.3.eq.b4.q^0.5252185347
-    //  SETD^f.3.eq.b5.freq^0.9542171999
-    //  SETD^f.3.eq.b5.gain^0.5
-    //  SETD^f.3.eq.b5.q^0.5252185347
+        SETD^f.3.eq.b5.freq^0.9542171999
+        SETD^f.3.eq.b5.gain^0.5
+        SETD^f.3.eq.b5.q^0.5252185347
         SETD^f.3.eq.bypass^0
-    //  SETD^f.3.eq.easy^0
+        SETD^f.3.eq.easy^0
         SETD^f.3.eq.hpf.freq^0
-    //  SETD^f.3.eq.prmod^0
-    //  SETD^f.3.forceunmute^0
-    //  SETD^f.3.fxtype^3
-    //  SETD^f.3.mgmask^0
+        SETD^f.3.eq.prmod^0
+        SETD^f.3.forceunmute^0
+        SETD^f.3.fxtype^3
+        SETD^f.3.mgmask^0
         SETD^f.3.mix^0.7647058824
         SETD^f.3.mute^0
         SETD^f.3.pan^0.5
@@ -1451,30 +1452,30 @@
         SETD^f.3.par3^0.5
         SETD^f.3.par4^1
         SETD^f.3.par5^0
-    //  SETD^f.3.par6^0
-    //  SETD^f.3.prmod^0
-    //  SETD^f.3.safe^0
-    //  SETD^f.3.smix^0.7647058824
+        SETD^f.3.par6^0
+        SETD^f.3.prmod^0
+        SETD^f.3.safe^0
+        SETD^f.3.smix^0.7647058824
         SETD^f.3.solo^0
-    //  SETD^f.3.span^0.5
-    //  SETD^f.3.subgroup^-1
-
-    //  SETD^a.0.afs.clearall^0
-    //  SETD^a.0.afs.clearfixed^0
-    //  SETD^a.0.afs.clearlive^0
-    //  SETD^a.0.afs.cmode^0
-    //  SETD^a.0.afs.enabled^0
-    //  SETD^a.0.afs.fmode^0
-    //  SETD^a.0.afs.livelift^0
-    //  SETD^a.0.afs.logic^1
-    //  SETD^a.0.afs.numfixed^6
-    //  SETD^a.0.afs.numtotal^12
-    //  SETD^a.0.afs.sensitivity^0.5
+        SETD^f.3.span^0.5
+        SETD^f.3.subgroup^-1
+## AUX 1
+        SETD^a.0.afs.clearall^0
+        SETD^a.0.afs.clearfixed^0
+        SETD^a.0.afs.clearlive^0
+        SETD^a.0.afs.cmode^0
+        SETD^a.0.afs.enabled^1
+        SETD^a.0.afs.fmode^1
+        SETD^a.0.afs.livelift^0
+        SETD^a.0.afs.logic^1
+        SETD^a.0.afs.numfixed^6
+        SETD^a.0.afs.numtotal^12
+        SETD^a.0.afs.sensitivity^0.5
         SETD^a.0.dyn.attack^0.34375
         SETD^a.0.dyn.bypass^0
-    //  SETD^a.0.dyn.gain^0.75
+        SETD^a.0.dyn.gain^0.75
         SETD^a.0.dyn.outgain^0.3334960938
-    //  SETD^a.0.dyn.prmod^0
+        SETD^a.0.dyn.prmod^0
         SETD^a.0.dyn.ratio^1
         SETD^a.0.dyn.release^0.4887695312
         SETD^a.0.dyn.softknee^0
@@ -1482,9 +1483,9 @@
         SETD^a.0.gate.attack^0
         SETD^a.0.gate.bypass^0
         SETD^a.0.gate.depth^0
-    //  SETD^a.0.gate.enabled^1
+        SETD^a.0.gate.enabled^1
         SETD^a.0.gate.hold^0.3042441765
-    //  SETD^a.0.gate.prmod^0
+        SETD^a.0.gate.prmod^0
         SETD^a.0.gate.release^0.3150737134
         SETD^a.0.gate.thresh^0
         SETD^a.0.eq.bypass^0
@@ -1520,33 +1521,33 @@
         SETD^a.0.eq.peak.28^0.5
         SETD^a.0.eq.peak.29^0.5
         SETD^a.0.eq.peak.30^0.5
-    //  SETD^a.0.eq.prmod^0
-    //  SETD^a.0.forceunmute^0
-    //  SETD^a.0.link2master^0
-    //  SETD^a.0.mgmask^0
+        SETD^a.0.eq.prmod^0
+        SETD^a.0.forceunmute^0
+        SETD^a.0.link2master^0
+        SETD^a.0.mgmask^0
         SETD^a.0.mix^0.7647058824
         SETD^a.0.mute^0
         SETD^a.0.pan^0.5
-    //  SETD^a.0.safe^0
+        SETD^a.0.safe^0
         SETD^a.0.solo^0
-    //  SETD^a.0.stereoIndex^-1
-
-    //  SETD^a.1.afs.clearall^0
-    //  SETD^a.1.afs.clearfixed^0
-    //  SETD^a.1.afs.clearlive^0
-    //  SETD^a.1.afs.cmode^0
-    //  SETD^a.1.afs.enabled^0
-    //  SETD^a.1.afs.fmode^0
-    //  SETD^a.1.afs.livelift^0
-    //  SETD^a.1.afs.logic^1
-    //  SETD^a.1.afs.numfixed^6
-    //  SETD^a.1.afs.numtotal^12
-    //  SETD^a.1.afs.sensitivity^0.5
+        SETD^a.0.stereoIndex^-1
+## AUX 2
+        SETD^a.1.afs.clearall^0
+        SETD^a.1.afs.clearfixed^0
+        SETD^a.1.afs.clearlive^0
+        SETD^a.1.afs.cmode^0
+        SETD^a.1.afs.enabled^1
+        SETD^a.1.afs.fmode^1
+        SETD^a.1.afs.livelift^0
+        SETD^a.1.afs.logic^1
+        SETD^a.1.afs.numfixed^6
+        SETD^a.1.afs.numtotal^12
+        SETD^a.1.afs.sensitivity^0.5
         SETD^a.1.dyn.attack^0.34375
         SETD^a.1.dyn.bypass^0
-    //  SETD^a.1.dyn.gain^0.75
+        SETD^a.1.dyn.gain^0.75
         SETD^a.1.dyn.outgain^0.3334960938
-    //  SETD^a.1.dyn.prmod^0
+        SETD^a.1.dyn.prmod^0
         SETD^a.1.dyn.ratio^1
         SETD^a.1.dyn.release^0.4887695312
         SETD^a.1.dyn.softknee^0
@@ -1554,9 +1555,9 @@
         SETD^a.1.gate.attack^0
         SETD^a.1.gate.bypass^0
         SETD^a.1.gate.depth^0
-    //  SETD^a.1.gate.enabled^1
+        SETD^a.1.gate.enabled^1
         SETD^a.1.gate.hold^0.3042441765
-    //  SETD^a.1.gate.prmod^0
+        SETD^a.1.gate.prmod^0
         SETD^a.1.gate.release^0.3150737134
         SETD^a.1.gate.thresh^0
         SETD^a.1.eq.bypass^0
@@ -1592,33 +1593,33 @@
         SETD^a.1.eq.peak.28^0.5
         SETD^a.1.eq.peak.29^0.5
         SETD^a.1.eq.peak.30^0.5
-    //  SETD^a.1.eq.prmod^0
-    //  SETD^a.1.forceunmute^0
-    //  SETD^a.1.link2master^0
-    //  SETD^a.1.mgmask^0
+        SETD^a.1.eq.prmod^0
+        SETD^a.1.forceunmute^0
+        SETD^a.1.link2master^0
+        SETD^a.1.mgmask^0
         SETD^a.1.mix^0.7647058824
         SETD^a.1.mute^0
         SETD^a.1.pan^0.5
-    //  SETD^a.1.safe^0
+        SETD^a.1.safe^0
         SETD^a.1.solo^0
-    //  SETD^a.1.stereoIndex^-1
-
-    //  SETD^a.2.afs.clearall^0
-    //  SETD^a.2.afs.clearfixed^0
-    //  SETD^a.2.afs.clearlive^0
-    //  SETD^a.2.afs.cmode^0
-    //  SETD^a.2.afs.enabled^0
-    //  SETD^a.2.afs.fmode^0
-    //  SETD^a.2.afs.livelift^0
-    //  SETD^a.2.afs.logic^1
-    //  SETD^a.2.afs.numfixed^6
-    //  SETD^a.2.afs.numtotal^12
-    //  SETD^a.2.afs.sensitivity^0.5
+        SETD^a.1.stereoIndex^-1
+## AUX 3
+        SETD^a.2.afs.clearall^0
+        SETD^a.2.afs.clearfixed^0
+        SETD^a.2.afs.clearlive^0
+        SETD^a.2.afs.cmode^0
+        SETD^a.2.afs.enabled^0
+        SETD^a.2.afs.fmode^0
+        SETD^a.2.afs.livelift^0
+        SETD^a.2.afs.logic^1
+        SETD^a.2.afs.numfixed^6
+        SETD^a.2.afs.numtotal^12
+        SETD^a.2.afs.sensitivity^0.5
         SETD^a.2.dyn.attack^0.34375
         SETD^a.2.dyn.bypass^0
-    //  SETD^a.2.dyn.gain^0.75
+        SETD^a.2.dyn.gain^0.75
         SETD^a.2.dyn.outgain^0.3334960938
-    //  SETD^a.2.dyn.prmod^0
+        SETD^a.2.dyn.prmod^0
         SETD^a.2.dyn.ratio^1
         SETD^a.2.dyn.release^0.4887695312
         SETD^a.2.dyn.softknee^0
@@ -1626,9 +1627,9 @@
         SETD^a.2.gate.attack^0
         SETD^a.2.gate.bypass^0
         SETD^a.2.gate.depth^0
-    //  SETD^a.2.gate.enabled^1
+        SETD^a.2.gate.enabled^1
         SETD^a.2.gate.hold^0.3042441765
-    //  SETD^a.2.gate.prmod^0
+        SETD^a.2.gate.prmod^0
         SETD^a.2.gate.release^0.3150737134
         SETD^a.2.gate.thresh^0
         SETD^a.2.eq.bypass^0
@@ -1664,33 +1665,33 @@
         SETD^a.2.eq.peak.28^0.5
         SETD^a.2.eq.peak.29^0.5
         SETD^a.2.eq.peak.30^0.5
-    //  SETD^a.2.eq.prmod^0
-    //  SETD^a.2.forceunmute^0
-    //  SETD^a.2.link2master^0
-    //  SETD^a.2.mgmask^0
+        SETD^a.2.eq.prmod^0
+        SETD^a.2.forceunmute^0
+        SETD^a.2.link2master^0
+        SETD^a.2.mgmask^0
         SETD^a.2.mix^0.7647058824
         SETD^a.2.mute^0
         SETD^a.2.pan^0.5
-    //  SETD^a.2.safe^0
+        SETD^a.2.safe^0
         SETD^a.2.solo^0
-    //  SETD^a.2.stereoIndex^-1
-
-    //  SETD^a.3.afs.clearall^0
-    //  SETD^a.3.afs.clearfixed^0
-    //  SETD^a.3.afs.clearlive^0
-    //  SETD^a.3.afs.cmode^0
-    //  SETD^a.3.afs.enabled^0
-    //  SETD^a.3.afs.fmode^0
-    //  SETD^a.3.afs.livelift^0
-    //  SETD^a.3.afs.logic^1
-    //  SETD^a.3.afs.numfixed^6
-    //  SETD^a.3.afs.numtotal^12
-    //  SETD^a.3.afs.sensitivity^0.5
+        SETD^a.2.stereoIndex^-1
+## AUX 4
+        SETD^a.3.afs.clearall^0
+        SETD^a.3.afs.clearfixed^0
+        SETD^a.3.afs.clearlive^0
+        SETD^a.3.afs.cmode^0
+        SETD^a.3.afs.enabled^0
+        SETD^a.3.afs.fmode^0
+        SETD^a.3.afs.livelift^0
+        SETD^a.3.afs.logic^1
+        SETD^a.3.afs.numfixed^6
+        SETD^a.3.afs.numtotal^12
+        SETD^a.3.afs.sensitivity^0.5
         SETD^a.3.dyn.attack^0.34375
         SETD^a.3.dyn.bypass^0
-    //  SETD^a.3.dyn.gain^0.75
+        SETD^a.3.dyn.gain^0.75
         SETD^a.3.dyn.outgain^0.3334960938
-    //  SETD^a.3.dyn.prmod^0
+        SETD^a.3.dyn.prmod^0
         SETD^a.3.dyn.ratio^1
         SETD^a.3.dyn.release^0.4887695312
         SETD^a.3.dyn.softknee^0
@@ -1698,9 +1699,9 @@
         SETD^a.3.gate.attack^0
         SETD^a.3.gate.bypass^0
         SETD^a.3.gate.depth^0
-    //  SETD^a.3.gate.enabled^1
+        SETD^a.3.gate.enabled^1
         SETD^a.3.gate.hold^0.3042441765
-    //  SETD^a.3.gate.prmod^0
+        SETD^a.3.gate.prmod^0
         SETD^a.3.gate.release^0.3150737134
         SETD^a.3.gate.thresh^0
         SETD^a.3.eq.bypass^0
@@ -1736,32 +1737,32 @@
         SETD^a.3.eq.peak.28^0.5
         SETD^a.3.eq.peak.29^0.5
         SETD^a.3.eq.peak.30^0.5
-    //  SETD^a.3.eq.prmod^0
-    //  SETD^a.3.forceunmute^0
-    //  SETD^a.3.link2master^0
-    //  SETD^a.3.mgmask^0
+        SETD^a.3.eq.prmod^0
+        SETD^a.3.forceunmute^0
+        SETD^a.3.link2master^0
+        SETD^a.3.mgmask^0
         SETD^a.3.mix^0.7647058824
         SETD^a.3.mute^0
         SETD^a.3.pan^0.5
-    //  SETD^a.3.safe^0
+        SETD^a.3.safe^0
         SETD^a.3.solo^0
-    //  SETD^a.3.stereoIndex^-1
-
-    //  SETD^m.afs.clearall^0
-    //  SETD^m.afs.clearfixed^0
-    //  SETD^m.afs.clearlive^0
-    //  SETD^m.afs.cmode^0
-    //  SETD^m.afs.enabled^1
-    //  SETD^m.afs.fmode^1
-    //  SETD^m.afs.livelift^0
-    //  SETD^m.afs.logic^1
-    //  SETD^m.afs.numfixed^6
-    //  SETD^m.afs.numtotal^12
-    //  SETD^m.afs.sensitivity^0.6994553205
-    //  SETD^m.dim^0
+        SETD^a.3.stereoIndex^-1
+## MASTER
+        SETD^m.afs.clearall^0
+        SETD^m.afs.clearfixed^0
+        SETD^m.afs.clearlive^0
+        SETD^m.afs.cmode^0
+        SETD^m.afs.enabled^1
+        SETD^m.afs.fmode^1
+        SETD^m.afs.livelift^0
+        SETD^m.afs.logic^1
+        SETD^m.afs.numfixed^6
+        SETD^m.afs.numtotal^12
+        SETD^m.afs.sensitivity^0.6994553205
+        SETD^m.dim^0
         SETD^m.dyn.bypass^0
         SETD^m.dyn.l.attack^0
-    //  SETD^m.dyn.l.gain^0.75
+        SETD^m.dyn.l.gain^0.75
         SETD^m.dyn.l.hold^0.158
         SETD^m.dyn.l.outgain^0.3334960938
         SETD^m.dyn.l.ratio^0.6834676748
@@ -1769,9 +1770,9 @@
         SETD^m.dyn.l.softknee^0
         SETD^m.dyn.l.threshold^0.7973028338
         SETD^m.dyn.linked^1
-    //  SETD^m.dyn.prmod^1
+        SETD^m.dyn.prmod^1
         SETD^m.dyn.r.attack^0
-    //  SETD^m.dyn.r.gain^0.75
+        SETD^m.dyn.r.gain^0.75
         SETD^m.dyn.r.hold^0.158
         SETD^m.dyn.r.outgain^0.3334960938
         SETD^m.dyn.r.ratio^0.6834676748
@@ -1781,13 +1782,13 @@
         SETD^m.gate.attack^0
         SETD^m.gate.bypass^1
         SETD^m.gate.depth^0
-    //  SETD^m.gate.enabled^0
+        SETD^m.gate.enabled^0
         SETD^m.gate.hold^0.3042441765
-    //  SETD^m.gate.prmod^0
+        SETD^m.gate.prmod^0
         SETD^m.gate.release^0.3150737134
         SETD^m.gate.thresh^0
         SETD^m.eq.bypass^0
-    //  SETD^m.eq.linked^1
+        SETD^m.eq.linked^1
         SETD^m.eq.peak.l.0^0.5
         SETD^m.eq.peak.l.1^0.5
         SETD^m.eq.peak.l.2^0.5
@@ -1850,9 +1851,8 @@
         SETD^m.eq.peak.r.28^0.5
         SETD^m.eq.peak.r.29^0.5
         SETD^m.eq.peak.r.30^0.5
-    //  SETD^m.eq.prmod^0
+        SETD^m.eq.prmod^0
         SETD^m.mix^0.7618130227
-    //  SETD^m.safe^1
         SETD^m.pan^0.5
-
-<!--  -->
+        SETD^m.safe^1
+```

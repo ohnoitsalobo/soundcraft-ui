@@ -3,6 +3,7 @@ body {
     font-size: 0.7em;
     background: black;
     color: white;
+    white-space: pre-line;
 }
 
 input[type=range] {

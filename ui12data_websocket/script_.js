@@ -15,13 +15,16 @@ socket.onerror = function(error) {
 socket.onopen = function(event) {
     // if the text "3:::ALIVE" is not received within 20 seconds the websocket is closed. Sending every second.
     _keepAlive = setInterval(function(){ socket.send(_alive_); }, 1000);
-    console.log("WebSocket connection established");
+    console.log("WebSocket connected");
+    document.getElementById("websocket").innerHTML = "WebSocket connected!";
 };
 socket.onclose = () => {
     clearInterval(_keepAlive); // no need to keep sending 'alive' text when disconnected
-    console.log('WebSocket connection closed!');
+    console.log('WebSocket disconnected!');
+    document.getElementById("websocket").innerHTML = "WebSocket disconnected!";
 };
 
+let updateEvent = new CustomEvent("update");
 socket.onmessage = function(event) {
     
     received = event.data;
@@ -43,6 +46,7 @@ socket.onmessage = function(event) {
                     var _t = document.getElementById(_params[x][0]);
                     if(_t){
                         _t.value = lineArray[1];
+                        _t.dispatchEvent(updateEvent);
                         document.getElementById(`${_t.id}Label`).textContent = `${_t.id}: ${_t.value}`;
                     }
                 }
@@ -69,7 +73,7 @@ function createSlider(element, _index){
 
     const sliderLabel = document.createElement('div');
     sliderLabel.style.marginTop = '10px';
-    sliderLabel.style.fontSize = '16px';
+    // sliderLabel.style.fontSize = '16px';
     
     // Create the slider input
     const slider = document.createElement('input');
@@ -110,28 +114,29 @@ function createSlider(element, _index){
 
     // Update the label when the slider value changes
     slider.addEventListener('input', () => {
+        slider.dispatchEvent(updateEvent);
         var _t = "";
         if(slider.id.endsWith("amp")){
             _t=E_AMPS2[slider.value]; 
-            sliderLabel.textContent = `${slider.id} - ${_t[1]}`;
+            sliderLabel.textContent = `${slider.id}\r\n${_t[1]}`;
             socket.send(`3:::SETD^${slider.id}^${_t[0]}`);
         } else if(slider.id.endsWith("cab")){
             _t=E_CABS2[slider.value];
-            sliderLabel.textContent = `${slider.id} - ${_t[1]}`;
+            sliderLabel.textContent = `${slider.id}\r\n${_t[1]}`;
             socket.send(`3:::SETD^${slider.id}^${_t[0]}`);
         } else {
-            sliderLabel.textContent = `${slider.id} - ${slider.value}`;
+            sliderLabel.textContent = `${slider.id}: ${slider.value}`;
             socket.send(`3:::SETD^${slider.id}^${slider.value}`);
         }
         if(slider.id == "i.0.digitech.enabled"){
             if(slider.value == 0){
-                document.getElementById("i.0.digitech.amp"   ).setAttribute("disabled", "1");
-                document.getElementById("i.0.digitech.cab"   ).setAttribute("disabled", "1");
-                document.getElementById("i.0.digitech.gain"  ).setAttribute("disabled", "1");
-                document.getElementById("i.0.digitech.level" ).setAttribute("disabled", "1");
-                document.getElementById("i.0.digitech.bass"  ).setAttribute("disabled", "1");
-                document.getElementById("i.0.digitech.mid"   ).setAttribute("disabled", "1");
-                document.getElementById("i.0.digitech.treble").setAttribute("disabled", "1");
+                document.getElementById("i.0.digitech.amp"   ).setAttribute("disabled", "disabled");
+                document.getElementById("i.0.digitech.cab"   ).setAttribute("disabled", "disabled");
+                document.getElementById("i.0.digitech.gain"  ).setAttribute("disabled", "disabled");
+                document.getElementById("i.0.digitech.level" ).setAttribute("disabled", "disabled");
+                document.getElementById("i.0.digitech.bass"  ).setAttribute("disabled", "disabled");
+                document.getElementById("i.0.digitech.mid"   ).setAttribute("disabled", "disabled");
+                document.getElementById("i.0.digitech.treble").setAttribute("disabled", "disabled");
             } else {
                 document.getElementById("i.0.digitech.amp"   ).removeAttribute("disabled");
                 document.getElementById("i.0.digitech.cab"   ).removeAttribute("disabled");
@@ -144,13 +149,13 @@ function createSlider(element, _index){
         }
         if(slider.id == "i.1.digitech.enabled"){
             if(slider.value == 0){
-                document.getElementById("i.1.digitech.amp"   ).setAttribute("disabled", "1");
-                document.getElementById("i.1.digitech.cab"   ).setAttribute("disabled", "1");
-                document.getElementById("i.1.digitech.gain"  ).setAttribute("disabled", "1");
-                document.getElementById("i.1.digitech.level" ).setAttribute("disabled", "1");
-                document.getElementById("i.1.digitech.bass"  ).setAttribute("disabled", "1");
-                document.getElementById("i.1.digitech.mid"   ).setAttribute("disabled", "1");
-                document.getElementById("i.1.digitech.treble").setAttribute("disabled", "1");
+                document.getElementById("i.1.digitech.amp"   ).setAttribute("disabled", "disabled");
+                document.getElementById("i.1.digitech.cab"   ).setAttribute("disabled", "disabled");
+                document.getElementById("i.1.digitech.gain"  ).setAttribute("disabled", "disabled");
+                document.getElementById("i.1.digitech.level" ).setAttribute("disabled", "disabled");
+                document.getElementById("i.1.digitech.bass"  ).setAttribute("disabled", "disabled");
+                document.getElementById("i.1.digitech.mid"   ).setAttribute("disabled", "disabled");
+                document.getElementById("i.1.digitech.treble").setAttribute("disabled", "disabled");
             } else {
                 document.getElementById("i.1.digitech.amp"   ).removeAttribute("disabled");
                 document.getElementById("i.1.digitech.cab"   ).removeAttribute("disabled");
@@ -165,6 +170,16 @@ function createSlider(element, _index){
     slider.addEventListener('dblclick', () => {
         slider.value = _params[_index][2];
         slider.dispatchEvent(new Event('input'));
+    });
+    
+    slider.addEventListener("update", (e) => {
+        for(var i = 0; i < _inout.length; i++){
+            if(slider.id.startsWith(_inout[i])){
+                if(slider.id.endsWith("eq.mute")){
+                    
+                }
+            }
+        }
     });
 
     sliderContainer.appendChild(sliderLabel);
@@ -317,6 +332,13 @@ var E_AMPS2=[ // 48
     [ 52, "Acoustic Dreadnaught"],
     [ 53, "Acoustic Jumbo"]
 ];
+
+var _inout = [ "i.0.", "i.1.", "i.2.", "i.3.", "i.4.", "i.5.", "i.6.", "i.7.",  // inputs
+               "l.0.", "l.1.", "p.0.", "p.1.",      // line in, USB
+               "s.0.", "s.1.", "s.2.", "s.3.",      // subgroups
+               "f.0.", "f.1.", "f.2.", "f.3.",      // FX
+               "a.0.", "a.1.", "a.2.", "a.3.", "m." // aux, master
+              ];
 /* */
 var _params = [
 [ "i.0.aux.0.mute", 0, 0],
@@ -366,6 +388,8 @@ var _params = [
 //  [ "i.0.gate.prmod", 0, 0],
 [ "i.0.gate.release", 0.3150737134, 0.3150737134],
 [ "i.0.gate.thresh", 0, 0],
+[ "i.0.eq.bypass", 0, 0],
+[ "i.0.eq.hpf.freq", 0, 0],
 [ "i.0.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "i.0.eq.b1.gain", 0.5, 0.5],
 [ "i.0.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -381,9 +405,7 @@ var _params = [
 //  [ "i.0.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "i.0.eq.b5.gain", 0.5, 0.5],
 //  [ "i.0.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "i.0.eq.bypass", 0, 0],
 //  [ "i.0.eq.easy", 0, 0],
-[ "i.0.eq.hpf.freq", 0, 0],
 //  [ "i.0.eq.prmod", 0, 0],
 //  [ "i.0.forceunmute", 0, 0],
 [ "i.0.fx.0.mute", 0, 0],
@@ -454,6 +476,8 @@ var _params = [
 //  [ "i.1.gate.prmod", 0, 0],
 [ "i.1.gate.release", 0.3150737134, 0.3150737134],
 [ "i.1.gate.thresh", 0, 0],
+[ "i.1.eq.bypass", 0, 0],
+[ "i.1.eq.hpf.freq", 0, 0],
 [ "i.1.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "i.1.eq.b1.gain", 0.5, 0.5],
 [ "i.1.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -469,9 +493,7 @@ var _params = [
 //  [ "i.1.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "i.1.eq.b5.gain", 0.5, 0.5],
 //  [ "i.1.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "i.1.eq.bypass", 0, 0],
 //  [ "i.1.eq.easy", 0, 0],
-[ "i.1.eq.hpf.freq", 0, 0],
 //  [ "i.1.eq.prmod", 0, 0],
 //  [ "i.1.forceunmute", 0, 0],
 [ "i.1.fx.0.mute", 0, 0],
@@ -534,6 +556,8 @@ var _params = [
 //  [ "i.2.gate.prmod", 0, 0],
 [ "i.2.gate.release", 0.3150737134, 0.3150737134],
 [ "i.2.gate.thresh", 0, 0],
+[ "i.2.eq.bypass", 0, 0],
+[ "i.2.eq.hpf.freq", 0, 0],
 [ "i.2.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "i.2.eq.b1.gain", 0.5, 0.5],
 [ "i.2.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -549,9 +573,7 @@ var _params = [
 //  [ "i.2.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "i.2.eq.b5.gain", 0.5, 0.5],
 //  [ "i.2.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "i.2.eq.bypass", 0, 0],
 //  [ "i.2.eq.easy", 0, 0],
-[ "i.2.eq.hpf.freq", 0, 0],
 //  [ "i.2.eq.prmod", 0, 0],
 //  [ "i.2.forceunmute", 0, 0],
 [ "i.2.fx.0.mute", 0, 0],
@@ -613,6 +635,8 @@ var _params = [
 //  [ "i.3.gate.prmod", 0, 0],
 [ "i.3.gate.release", 0.3150737134, 0.3150737134],
 [ "i.3.gate.thresh", 0, 0],
+[ "i.3.eq.bypass", 0, 0],
+[ "i.3.eq.hpf.freq", 0, 0],
 [ "i.3.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "i.3.eq.b1.gain", 0.5, 0.5],
 [ "i.3.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -628,9 +652,7 @@ var _params = [
 //  [ "i.3.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "i.3.eq.b5.gain", 0.5, 0.5],
 //  [ "i.3.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "i.3.eq.bypass", 0, 0],
 //  [ "i.3.eq.easy", 0, 0],
-[ "i.3.eq.hpf.freq", 0, 0],
 //  [ "i.3.eq.prmod", 0, 0],
 //  [ "i.3.forceunmute", 0, 0],
 [ "i.3.fx.3.value", 0, 0],
@@ -692,6 +714,8 @@ var _params = [
 //  [ "i.4.gate.prmod", 0, 0],
 [ "i.4.gate.release", 0.3150737134, 0.3150737134],
 [ "i.4.gate.thresh", 0, 0],
+[ "i.4.eq.bypass", 0, 0],
+[ "i.4.eq.hpf.freq", 0, 0],
 [ "i.4.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "i.4.eq.b1.gain", 0.5, 0.5],
 [ "i.4.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -707,9 +731,7 @@ var _params = [
 //  [ "i.4.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "i.4.eq.b5.gain", 0.5, 0.5],
 //  [ "i.4.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "i.4.eq.bypass", 0, 0],
 //  [ "i.4.eq.easy", 0, 0],
-[ "i.4.eq.hpf.freq", 0, 0],
 //  [ "i.4.eq.prmod", 0, 0],
 //  [ "i.4.forceunmute", 0, 0],
 [ "i.4.fx.0.mute", 0, 0],
@@ -771,6 +793,8 @@ var _params = [
 //  [ "i.5.gate.prmod", 0, 0],
 [ "i.5.gate.release", 0.3150737134, 0.3150737134],
 [ "i.5.gate.thresh", 0, 0],
+[ "i.5.eq.bypass", 0, 0],
+[ "i.5.eq.hpf.freq", 0, 0],
 [ "i.5.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "i.5.eq.b1.gain", 0.5, 0.5],
 [ "i.5.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -786,9 +810,7 @@ var _params = [
 //  [ "i.5.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "i.5.eq.b5.gain", 0.5, 0.5],
 //  [ "i.5.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "i.5.eq.bypass", 0, 0],
 //  [ "i.5.eq.easy", 0, 0],
-[ "i.5.eq.hpf.freq", 0, 0],
 //  [ "i.5.eq.prmod", 0, 0],
 //  [ "i.5.forceunmute", 0, 0],
 [ "i.5.fx.0.mute", 0, 0],
@@ -850,6 +872,8 @@ var _params = [
 //  [ "i.6.gate.prmod", 0, 0],
 [ "i.6.gate.release", 0.3150737134, 0.3150737134],
 [ "i.6.gate.thresh", 0, 0],
+[ "i.6.eq.bypass", 0, 0],
+[ "i.6.eq.hpf.freq", 0, 0],
 [ "i.6.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "i.6.eq.b1.gain", 0.5, 0.5],
 [ "i.6.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -865,9 +889,7 @@ var _params = [
 //  [ "i.6.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "i.6.eq.b5.gain", 0.5, 0.5],
 //  [ "i.6.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "i.6.eq.bypass", 0, 0],
 //  [ "i.6.eq.easy", 0, 0],
-[ "i.6.eq.hpf.freq", 0, 0],
 //  [ "i.6.eq.prmod", 0, 0],
 //  [ "i.6.forceunmute", 0, 0],
 [ "i.6.fx.0.mute", 0, 0],
@@ -929,6 +951,8 @@ var _params = [
 //  [ "i.7.gate.prmod", 0, 0],
 [ "i.7.gate.release", 0.3150737134, 0.3150737134],
 [ "i.7.gate.thresh", 0, 0],
+[ "i.7.eq.bypass", 0, 0],
+[ "i.7.eq.hpf.freq", 0, 0],
 [ "i.7.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "i.7.eq.b1.gain", 0.5, 0.5],
 [ "i.7.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -944,9 +968,7 @@ var _params = [
 //  [ "i.7.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "i.7.eq.b5.gain", 0.5, 0.5],
 //  [ "i.7.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "i.7.eq.bypass", 0, 0],
 //  [ "i.7.eq.easy", 0, 0],
-[ "i.7.eq.hpf.freq", 0, 0],
 //  [ "i.7.eq.prmod", 0, 0],
 //  [ "i.7.forceunmute", 0, 0],
 [ "i.7.fx.0.mute", 0, 0],
@@ -1002,6 +1024,8 @@ var _params = [
 //  [ "l.0.gate.prmod", 0, 0],
 [ "l.0.gate.release", 0.3150737134, 0.3150737134],
 [ "l.0.gate.thresh", 0, 0],
+[ "l.0.eq.bypass", 0, 0],
+[ "l.0.eq.hpf.freq", 0, 0],
 [ "l.0.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "l.0.eq.b1.gain", 0.5, 0.5],
 [ "l.0.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -1017,9 +1041,7 @@ var _params = [
 //  [ "l.0.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "l.0.eq.b5.gain", 0.5, 0.5],
 //  [ "l.0.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "l.0.eq.bypass", 0, 0],
 //  [ "l.0.eq.easy", 0, 0],
-[ "l.0.eq.hpf.freq", 0, 0],
 //  [ "l.0.eq.prmod", 0, 0],
 //  [ "l.0.forceunmute", 0, 0],
 [ "l.0.fx.0.mute", 0, 0],
@@ -1075,6 +1097,8 @@ var _params = [
 //  [ "l.1.gate.prmod", 0, 0],
 [ "l.1.gate.release", 0.3150737134, 0.3150737134],
 [ "l.1.gate.thresh", 0, 0],
+[ "l.1.eq.bypass", 0, 0],
+[ "l.1.eq.hpf.freq", 0, 0],
 [ "l.1.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "l.1.eq.b1.gain", 0.5, 0.5],
 [ "l.1.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -1090,9 +1114,7 @@ var _params = [
 //  [ "l.1.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "l.1.eq.b5.gain", 0.5, 0.5],
 //  [ "l.1.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "l.1.eq.bypass", 0, 0],
 //  [ "l.1.eq.easy", 0, 0],
-[ "l.1.eq.hpf.freq", 0, 0],
 //  [ "l.1.eq.prmod", 0, 0],
 //  [ "l.1.forceunmute", 0, 0],
 [ "l.1.fx.0.mute", 0, 0],
@@ -1148,6 +1170,8 @@ var _params = [
 //  [ "p.0.gate.prmod", 0, 0],
 [ "p.0.gate.release", 0.3150737134, 0.3150737134],
 [ "p.0.gate.thresh", 0, 0],
+[ "p.0.eq.bypass", 0, 0],
+[ "p.0.eq.hpf.freq", 0, 0],
 [ "p.0.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "p.0.eq.b1.gain", 0.5, 0.5],
 [ "p.0.eq.b1.q", 0.44, 0.44],
@@ -1163,9 +1187,7 @@ var _params = [
 //  [ "p.0.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "p.0.eq.b5.gain", 0.5, 0.5],
 //  [ "p.0.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "p.0.eq.bypass", 0, 0],
 //  [ "p.0.eq.easy", 0, 0],
-[ "p.0.eq.hpf.freq", 0, 0],
 //  [ "p.0.eq.prmod", 1, 1],
 [ "p.0.forceunmute", 0, 0],
 [ "p.0.fx.0.mute", 0, 0],
@@ -1218,6 +1240,8 @@ var _params = [
 //  [ "p.1.gate.prmod", 0, 0],
 [ "p.1.gate.release", 0.3150737134, 0.3150737134],
 [ "p.1.gate.thresh", 0, 0],
+[ "p.1.eq.bypass", 0, 0],
+[ "p.1.eq.hpf.freq", 0, 0],
 [ "p.1.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "p.1.eq.b1.gain", 0.5, 0.5],
 [ "p.1.eq.b1.q", 0.44, 0.44],
@@ -1233,9 +1257,7 @@ var _params = [
 //  [ "p.1.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "p.1.eq.b5.gain", 0.5, 0.5],
 //  [ "p.1.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "p.1.eq.bypass", 0, 0],
 //  [ "p.1.eq.easy", 0, 0],
-[ "p.1.eq.hpf.freq", 0, 0],
 //  [ "p.1.eq.prmod", 1, 1],
 [ "p.1.forceunmute", 0, 0],
 [ "p.1.fx.0.mute", 0, 0],
@@ -1272,6 +1294,8 @@ var _params = [
 //  [ "s.0.gate.prmod", 0, 0],
 [ "s.0.gate.release", 0.3150737134, 0.3150737134],
 [ "s.0.gate.thresh", 0, 0],
+[ "s.0.eq.bypass", 0, 0],
+[ "s.0.eq.hpf.freq", 0, 0],
 [ "s.0.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "s.0.eq.b1.gain", 0.5, 0.5],
 [ "s.0.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -1287,9 +1311,7 @@ var _params = [
 //  [ "s.0.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "s.0.eq.b5.gain", 0.5, 0.5],
 //  [ "s.0.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "s.0.eq.bypass", 0, 0],
 //  [ "s.0.eq.easy", 0, 0],
-[ "s.0.eq.hpf.freq", 0, 0],
 //  [ "s.0.eq.prmod", 0, 0],
 //  [ "s.0.forceunmute", 0, 0],
 [ "s.0.fx.3.value", 0, 0],
@@ -1324,6 +1346,8 @@ var _params = [
 //  [ "s.1.gate.prmod", 0, 0],
 [ "s.1.gate.release", 0.3150737134, 0.3150737134],
 [ "s.1.gate.thresh", 0, 0],
+[ "s.1.eq.bypass", 0, 0],
+[ "s.1.eq.hpf.freq", 0, 0],
 [ "s.1.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "s.1.eq.b1.gain", 0.5, 0.5],
 [ "s.1.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -1339,9 +1363,7 @@ var _params = [
 //  [ "s.1.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "s.1.eq.b5.gain", 0.5, 0.5],
 //  [ "s.1.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "s.1.eq.bypass", 0, 0],
 //  [ "s.1.eq.easy", 0, 0],
-[ "s.1.eq.hpf.freq", 0, 0],
 //  [ "s.1.eq.prmod", 0, 0],
 //  [ "s.1.forceunmute", 0, 0],
 [ "s.1.fx.0.mute", 0, 0],
@@ -1376,6 +1398,8 @@ var _params = [
 //  [ "s.2.gate.prmod", 0, 0],
 [ "s.2.gate.release", 0.3150737134, 0.3150737134],
 [ "s.2.gate.thresh", 0, 0],
+[ "s.2.eq.bypass", 0, 0],
+[ "s.2.eq.hpf.freq", 0, 0],
 [ "s.2.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "s.2.eq.b1.gain", 0.5, 0.5],
 [ "s.2.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -1391,9 +1415,7 @@ var _params = [
 //  [ "s.2.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "s.2.eq.b5.gain", 0.5, 0.5],
 //  [ "s.2.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "s.2.eq.bypass", 0, 0],
 //  [ "s.2.eq.easy", 0, 0],
-[ "s.2.eq.hpf.freq", 0, 0],
 //  [ "s.2.eq.prmod", 0, 0],
 //  [ "s.2.forceunmute", 0, 0],
 [ "s.2.fx.0.mute", 0, 0],
@@ -1428,6 +1450,8 @@ var _params = [
 //  [ "s.3.gate.prmod", 0, 0],
 [ "s.3.gate.release", 0.3150737134, 0.3150737134],
 [ "s.3.gate.thresh", 0, 0],
+[ "s.3.eq.bypass", 0, 0],
+[ "s.3.eq.hpf.freq", 0, 0],
 [ "s.3.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "s.3.eq.b1.gain", 0.5, 0.5],
 [ "s.3.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -1443,9 +1467,7 @@ var _params = [
 //  [ "s.3.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "s.3.eq.b5.gain", 0.5, 0.5],
 //  [ "s.3.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "s.3.eq.bypass", 0, 0],
 //  [ "s.3.eq.easy", 0, 0],
-[ "s.3.eq.hpf.freq", 0, 0],
 //  [ "s.3.eq.prmod", 0, 0],
 //  [ "s.3.forceunmute", 0, 0],
 [ "s.3.fx.0.mute", 0, 0],
@@ -1498,6 +1520,8 @@ var _params = [
 //  [ "f.0.gate.prmod", 0, 0],
 [ "f.0.gate.release", 0.3150737134, 0.3150737134],
 [ "f.0.gate.thresh", 0, 0],
+[ "f.0.eq.bypass", 0, 0],
+[ "f.0.eq.hpf.freq", 0, 0],
 [ "f.0.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "f.0.eq.b1.gain", 0.5, 0.5],
 [ "f.0.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -1513,9 +1537,7 @@ var _params = [
 //  [ "f.0.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "f.0.eq.b5.gain", 0.5, 0.5],
 //  [ "f.0.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "f.0.eq.bypass", 0, 0],
 //  [ "f.0.eq.easy", 0, 0],
-[ "f.0.eq.hpf.freq", 0, 0],
 //  [ "f.0.eq.prmod", 0, 0],
 //  [ "f.0.forceunmute", 0, 0],
 //  [ "f.0.fxtype", 0, 0],
@@ -1571,6 +1593,8 @@ var _params = [
 //  [ "f.1.gate.prmod", 0, 0],
 [ "f.1.gate.release", 0.3150737134, 0.3150737134],
 [ "f.1.gate.thresh", 0, 0],
+[ "f.1.eq.bypass", 0, 0],
+[ "f.1.eq.hpf.freq", 0, 0],
 [ "f.1.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "f.1.eq.b1.gain", 0.5, 0.5],
 [ "f.1.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -1586,9 +1610,7 @@ var _params = [
 //  [ "f.1.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "f.1.eq.b5.gain", 0.5, 0.5],
 //  [ "f.1.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "f.1.eq.bypass", 0, 0],
 //  [ "f.1.eq.easy", 0, 0],
-[ "f.1.eq.hpf.freq", 0, 0],
 //  [ "f.1.eq.prmod", 0, 0],
 //  [ "f.1.forceunmute", 0, 0],
 //  [ "f.1.fxtype", 1, 1],
@@ -1644,6 +1666,8 @@ var _params = [
 //  [ "f.2.gate.prmod", 0, 0],
 [ "f.2.gate.release", 0.3150737134, 0.3150737134],
 [ "f.2.gate.thresh", 0, 0],
+[ "f.2.eq.bypass", 0, 0],
+[ "f.2.eq.hpf.freq", 0, 0],
 [ "f.2.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "f.2.eq.b1.gain", 0.5, 0.5],
 [ "f.2.eq.b1.q", 0.5252185347, 0.5252185347],
@@ -1659,9 +1683,7 @@ var _params = [
 //  [ "f.2.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "f.2.eq.b5.gain", 0.5, 0.5],
 //  [ "f.2.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "f.2.eq.bypass", 0, 0],
 //  [ "f.2.eq.easy", 0, 0],
-[ "f.2.eq.hpf.freq", 0, 0],
 //  [ "f.2.eq.prmod", 0, 0],
 //  [ "f.2.forceunmute", 0, 0],
 //  [ "f.2.fxtype", 3, 3],
@@ -1701,6 +1723,7 @@ var _params = [
 //  [ "f.3.bpm", 120, 120],
 [ "f.3.bypass", 0, 0],
 [ "f.3.dyn.attack", 0.34375, 0.34375],
+[ "f.3.eq.b1.freq", 0.3286901902, 0.3286901902],
 [ "f.3.dyn.bypass", 0, 0],
 //  [ "f.3.dyn.gain", 0.75, 0.75],
 [ "f.3.dyn.outgain", 0.3334960938, 0.3334960938],
@@ -1716,8 +1739,9 @@ var _params = [
 [ "f.3.gate.hold", 0.3042441765, 0.3042441765],
 //  [ "f.3.gate.prmod", 0, 0],
 [ "f.3.gate.release", 0.3150737134, 0.3150737134],
+[ "f.3.eq.bypass", 0, 0],
 [ "f.3.gate.thresh", 0, 0],
-[ "f.3.eq.b1.freq", 0.3286901902, 0.3286901902],
+[ "f.3.eq.hpf.freq", 0, 0],
 [ "f.3.eq.b1.gain", 0.5, 0.5],
 [ "f.3.eq.b1.q", 0.5252185347, 0.5252185347],
 [ "f.3.eq.b2.freq", 0.5584347738, 0.5584347738],
@@ -1732,9 +1756,7 @@ var _params = [
 //  [ "f.3.eq.b5.freq", 0.9542171999, 0.9542171999],
 //  [ "f.3.eq.b5.gain", 0.5, 0.5],
 //  [ "f.3.eq.b5.q", 0.5252185347, 0.5252185347],
-[ "f.3.eq.bypass", 0, 0],
 //  [ "f.3.eq.easy", 0, 0],
-[ "f.3.eq.hpf.freq", 0, 0],
 //  [ "f.3.eq.prmod", 0, 0],
 //  [ "f.3.forceunmute", 0, 0],
 //  [ "f.3.fxtype", 3, 3],
