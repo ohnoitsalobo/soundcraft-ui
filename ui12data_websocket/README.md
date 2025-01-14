@@ -2,7 +2,7 @@
 
 My attempt to build a basic HTML page that can control desired aspects of the Soundcraft Ui series digital mixers.  
 This webpage SHOULD work with the Soundcraft Ui12 directly. Be sure to change the given IP address in the javascript section of the HTML to match your own mixer's IP address.  
-I will attempt to gain access to a Ui16 and/or Ui24 to test as well, but I expect it should work just as well. Modifications to the code would be required.  
+I will attempt to gain access to a Ui16 and/or Ui24 to test as well, but I expect it should work just as well. Modifications to the code would be required.
 The webpage `uidata_display.html` only **displays** the incoming control data and RTA data, and cannot send commands back to the mixer.  
 The webpage `index.html` displays the current values of nearly all internal mixer control values, and allows manipulation of said values using sliders. USE WITH CARE.  
 This was made possible through code from https://blechtrottel.net/en/jswebsockets.html
@@ -18,7 +18,8 @@ I am not responsible for your mixer's safety or for your live mix. Use this scri
 
 You can fetch the initial starting values of the mixer from a JSON file located at `http://[your-mixer-ip]/js/initparams.js` OR parse the intial values from the Websocket when initially connecting to the mixer.
 
-EXAMPLE UI12 OUTPUT DATA (all are valid inputs for controlling the mixer).  
+EXAMPLE UI12 OUTPUT DATA  
+(There are a few values listed below that are 1 - listed, but advisable not to touch, 2 - listed, but have no effect, or 3 - unlisted, and have an effect).  
 Ui16 and Ui24 will have correspondingly more data as they have more inputs and outputs to control.  
 Ui24 in particular will have a lot more as it also has patching information to synchronize.
 

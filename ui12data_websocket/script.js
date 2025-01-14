@@ -36,9 +36,7 @@ socket.onmessage = function(event) {
             
         }
         else if (line.search(/SETD/) > -1 || line.search(/SETS/) > -1) {    // filter SETD and SETS messages
-            // insert messages at the top, so you don't have to scroll for new messages
             line = line.replace('SETD^', ''); 
-            // document.getElementById("messages").insertAdjacentHTML("afterbegin", line+"<br \>");
             lineArray = line.split(/\^/);
             for(var x = 0; x < _params.length; x++){
                 if(lineArray[0] == _params[x][0]){
@@ -85,6 +83,7 @@ function createSlider(element, _index){
     slider.max = '1';
     slider.step = '0.0001';
     
+    // adjust ranges and steps for different controls
     if(slider.id.endsWith("mute")     ||
        slider.id.endsWith("enabled")  ||
        slider.id.endsWith("bypass")   ||
@@ -117,6 +116,7 @@ function createSlider(element, _index){
     slider.value = _params[_index][1];
     slider.classList.add("slider");
     
+    // add classes for later styling
     if(slider.id.startsWith("i."))  slider.classList.add("input");
     if(slider.id.startsWith("l."))  slider.classList.add("line", "input");
     if(slider.id.startsWith("p."))  slider.classList.add("usb");
@@ -151,6 +151,33 @@ function createSlider(element, _index){
         } else {
             sliderLabel.textContent = `${slider.id}: ${slider.value}`;
             socket.send(`3:::SETD^${slider.id}^${slider.value}`);
+        }
+        
+        // PHANTOM and HI-Z should NOT be on at the same time
+        // limited to Inputs 1 and 2
+        if(slider.id.startsWith("i.0.")){
+            if(slider.id.endsWith("phantom") && slider.value > 0){
+                var temp = document.getElementById("i.0.hiz");
+                temp.value = 0;
+                temp.dispatchEvent(new Event('input'));
+            }
+            if(slider.id.endsWith("hiz") && slider.value > 0){
+                var temp = document.getElementById("i.0.phantom");
+                temp.value = 0;
+                temp.dispatchEvent(new Event('input'));
+            }
+        }
+        if(slider.id.startsWith("i.1.")){
+            if(slider.id.endsWith("phantom") && slider.value > 0){
+                var temp = document.getElementById("i.1.hiz");
+                temp.value = 0;
+                temp.dispatchEvent(new Event('input'));
+            }
+            if(slider.id.endsWith("hiz") && slider.value > 0){
+                var temp = document.getElementById("i.1.phantom");
+                temp.value = 0;
+                temp.dispatchEvent(new Event('input'));
+            }
         }
         /* */
     });
@@ -247,7 +274,8 @@ var E_AMPS2=[ // 48
     [ 53, "Acoustic Jumbo"]
 ];
 
-var _inout = [ "i.0.", "i.1.", "i.2.", "i.3.", "i.4.", "i.5.", "i.6.", "i.7.",  // inputs
+var _inout = [ "i.0.", "i.1.", "i.2.", "i.3.",      // inputs
+               "i.4.", "i.5.", "i.6.", "i.7.",      // inputs
                "l.0.", "l.1.", "p.0.", "p.1.",      // line in, USB
                "s.0.", "s.1.", "s.2.", "s.3.",      // subgroups
                "f.0.", "f.1.", "f.2.", "f.3.",      // FX
@@ -255,7 +283,7 @@ var _inout = [ "i.0.", "i.1.", "i.2.", "i.3.", "i.4.", "i.5.", "i.6.", "i.7.",  
               ];
 /* */
 var _params = [
-// INPUT 1
+// ----------------------------------------- INPUT 1
     [ "i.0.color", 0, 0],
     [ "i.0.gain", 0, 0.4444444444],
     [ "i.0.mix", 0, 0],
@@ -336,7 +364,7 @@ var _params = [
     [ "i.0.aux.1.value", 0, 0],
     [ "i.0.aux.2.value", 0, 0],
     [ "i.0.aux.3.value", 0, 0],
-// INPUT 2
+// ----------------------------------------- INPUT 2
     [ "i.1.color", 0, 0],
     [ "i.1.gain", 0, 0.4444444444],
     [ "i.1.mix", 0, 0],
@@ -417,7 +445,7 @@ var _params = [
     [ "i.1.aux.1.value", 0, 0],
     [ "i.1.aux.2.value", 0, 0],
     [ "i.1.aux.3.value", 0, 0],
-// INPUT 3
+// ----------------------------------------- INPUT 3
     [ "i.2.color", 0, 0],
     [ "i.2.gain", 0, 0.4444444444],
     [ "i.2.mix", 0, 0],
@@ -502,7 +530,7 @@ var _params = [
     [ "i.2.aux.1.value", 0, 0],
     [ "i.2.aux.2.value", 0, 0],
     [ "i.2.aux.3.value", 0, 0],
-// INPUT 4
+// ----------------------------------------- INPUT 4
     [ "i.3.color", 0, 0],
     [ "i.3.gain", 0, 0.4444444444],
     [ "i.3.mix", 0, 0],
@@ -574,7 +602,7 @@ var _params = [
     [ "i.3.aux.1.value", 0, 0],
     [ "i.3.aux.2.value", 0, 0],
     [ "i.3.aux.3.value", 0, 0],
-// INPUT 5
+// ----------------------------------------- INPUT 5
     [ "i.4.color", 0, 0],
     [ "i.4.gain", 0, 0.4444444444],
     [ "i.4.mix", 0, 0],
@@ -646,7 +674,7 @@ var _params = [
     [ "i.4.aux.1.value", 0, 0],
     [ "i.4.aux.2.value", 0, 0],
     [ "i.4.aux.3.value", 0, 0],
-// INPUT 6
+// ----------------------------------------- INPUT 6
     [ "i.5.color", 0, 0],
     [ "i.5.gain", 0, 0.4444444444],
     [ "i.5.mix", 0, 0],
@@ -718,7 +746,7 @@ var _params = [
     [ "i.5.aux.1.value", 0, 0],
     [ "i.5.aux.2.value", 0, 0],
     [ "i.5.aux.3.value", 0, 0],
-// INPUT 7
+// ----------------------------------------- INPUT 7
     [ "i.6.color", 0, 0],
     [ "i.6.gain", 0, 0.4444444444],
     [ "i.6.mix", 0, 0],
@@ -790,7 +818,7 @@ var _params = [
     [ "i.6.aux.1.value", 0, 0],
     [ "i.6.aux.2.value", 0, 0],
     [ "i.6.aux.3.value", 0, 0],
-// INPUT 8
+// ----------------------------------------- INPUT 8
     [ "i.7.color", 0, 0],
     [ "i.7.gain", 0, 0.4444444444],
     [ "i.7.mix", 0, 0],
@@ -862,7 +890,7 @@ var _params = [
     [ "i.7.aux.1.value", 0, 0],
     [ "i.7.aux.2.value", 0, 0],
     [ "i.7.aux.3.value", 0, 0],
-// LINE IN L
+// ----------------------------------------- LINE IN L
     [ "l.0.color", 0, 0],
     [ "l.0.mix", 0, 0],
     [ "l.0.pan", 0.5, 0.5],
@@ -928,7 +956,7 @@ var _params = [
     [ "l.0.aux.1.value", 0, 0],
     [ "l.0.aux.2.value", 0, 0],
     [ "l.0.aux.3.value", 0, 0],
-// LINE IN R
+// ----------------------------------------- LINE IN R
     [ "l.1.color", 0, 0],
     [ "l.1.mix", 0, 0],
     [ "l.1.pan", 0.5, 0.5],
@@ -994,7 +1022,7 @@ var _params = [
     [ "l.1.aux.1.value", 0, 0],
     [ "l.1.aux.2.value", 0, 0],
     [ "l.1.aux.3.value", 0, 0],
-
+// ----------------------------------------- USB L
     [ "p.0.color", 0, 0],
     [ "p.0.mix", 0, 0],
     [ "p.0.pan", 0.5, 0.5],
@@ -1059,7 +1087,7 @@ var _params = [
     [ "p.0.aux.1.value", 0, 0],
     [ "p.0.aux.2.value", 0, 0],
     [ "p.0.aux.3.value", 0, 0],
-
+// ----------------------------------------- USB R
     [ "p.1.color", 0, 0],
     [ "p.1.mix", 0, 0],
     [ "p.1.pan", 0.5, 0.5],
@@ -1124,7 +1152,7 @@ var _params = [
     [ "p.1.aux.1.value", 0, 0],
     [ "p.1.aux.2.value", 0, 0],
     [ "p.1.aux.3.value", 0, 0],
-
+// ----------------------------------------- SUBGROUP 1
     [ "s.0.color", 0, 0],
     [ "s.0.mix", 0, 0],
     [ "s.0.pan", 0.5, 0.5],
@@ -1169,7 +1197,7 @@ var _params = [
     [ "s.0.fx.1.value", 0, 0],
     [ "s.0.fx.2.value", 0, 0],
     [ "s.0.fx.3.value", 0, 0],
-
+// ----------------------------------------- SUBGROUP 2
     [ "s.1.color", 0, 0],
     [ "s.1.mix", 0, 0],
     [ "s.1.pan", 0.5, 0.5],
@@ -1214,7 +1242,7 @@ var _params = [
     [ "s.1.fx.1.value", 0, 0],
     [ "s.1.fx.2.value", 0, 0],
     [ "s.1.fx.3.value", 0, 0],
-
+// ----------------------------------------- SUBGROUP 3
     [ "s.2.color", 0, 0],
     [ "s.2.mix", 0, 0],
     [ "s.2.pan", 0.5, 0.5],
@@ -1259,7 +1287,7 @@ var _params = [
     [ "s.2.fx.1.value", 0, 0],
     [ "s.2.fx.2.value", 0, 0],
     [ "s.2.fx.3.value", 0, 0],
-
+// ----------------------------------------- SUBGROUP 4
     [ "s.3.color", 0, 0],
     [ "s.3.mix", 0, 0],
     [ "s.3.pan", 0.5, 0.5],
@@ -1304,7 +1332,7 @@ var _params = [
     [ "s.3.fx.1.value", 0, 0],
     [ "s.3.fx.2.value", 0, 0],
     [ "s.3.fx.3.value", 0, 0],
-
+// ----------------------------------------- FX 1 REVERB
     [ "f.0.color", 0, 0],
     [ "f.0.mix", 0, 0],
     [ "f.0.pan", 0.5, 0.5],
@@ -1374,7 +1402,7 @@ var _params = [
     [ "f.0.aux.1.value", 0, 0],
     [ "f.0.aux.2.value", 0, 0],
     [ "f.0.aux.3.value", 0, 0],
-
+// ----------------------------------------- FX 2 DELAY
     [ "f.1.color", 0, 0],
     [ "f.1.mix", 0, 0],
     [ "f.1.pan", 0.5, 0.5],
@@ -1444,7 +1472,7 @@ var _params = [
     [ "f.1.aux.1.value", 0, 0],
     [ "f.1.aux.2.value", 0, 0],
     [ "f.1.aux.3.value", 0, 0],
-
+// ----------------------------------------- FX 3 CHORUS
     [ "f.2.color", 0, 0],
     [ "f.2.mix", 0, 0],
     [ "f.2.pan", 0.5, 0.5],
@@ -1512,7 +1540,7 @@ var _params = [
     [ "f.2.aux.1.value", 0, 0],
     [ "f.2.aux.2.value", 0, 0],
     [ "f.2.aux.3.value", 0, 0],
-
+// ----------------------------------------- FX 4 ROOM / DELAY
     [ "f.3.color", 0, 0],
     [ "f.3.mix", 0, 0],
     [ "f.3.pan", 0.5, 0.5],
@@ -1582,7 +1610,7 @@ var _params = [
     [ "f.3.aux.1.value", 0, 0],
     [ "f.3.aux.2.value", 0, 0],
     [ "f.3.aux.3.value", 0, 0],
-
+// ----------------------------------------- AUX 1
     //  [ "a.0.afs.clearall", 0, 0],
     //  [ "a.0.afs.clearfixed", 0, 0],
     //  [ "a.0.afs.clearlive", 0, 0],
@@ -1649,7 +1677,7 @@ var _params = [
     //  [ "a.0.mgmask", 0, 0],
     //  [ "a.0.safe", 0, 0],
     //  [ "a.0.stereoIndex", -1, -1],
-
+// ----------------------------------------- AUX 2
     //  [ "a.1.afs.clearall", 0, 0],
     //  [ "a.1.afs.clearfixed", 0, 0],
     //  [ "a.1.afs.clearlive", 0, 0],
@@ -1716,7 +1744,7 @@ var _params = [
     //  [ "a.1.mgmask", 0, 0],
     //  [ "a.1.safe", 0, 0],
     //  [ "a.1.stereoIndex", -1, -1],
-
+// ----------------------------------------- AUX 3
     //  [ "a.2.afs.clearall", 0, 0],
     //  [ "a.2.afs.clearfixed", 0, 0],
     //  [ "a.2.afs.clearlive", 0, 0],
@@ -1783,7 +1811,7 @@ var _params = [
     //  [ "a.2.mgmask", 0, 0],
     //  [ "a.2.safe", 0, 0],
     //  [ "a.2.stereoIndex", -1, -1],
-
+// ----------------------------------------- AUX 4
     //  [ "a.3.afs.clearall", 0, 0],
     //  [ "a.3.afs.clearfixed", 0, 0],
     //  [ "a.3.afs.clearlive", 0, 0],
@@ -1850,7 +1878,7 @@ var _params = [
     //  [ "a.3.mgmask", 0, 0],
     //  [ "a.3.safe", 0, 0],
     //  [ "a.3.stereoIndex", -1, -1],
-
+// ----------------------------------------- MASTER
     //  [ "m.afs.clearall", 0, 0],
     //  [ "m.afs.clearfixed", 0, 0],
     //  [ "m.afs.clearlive", 0, 0],
