@@ -1,5 +1,9 @@
 ## uidata_websocket
 
+**DISCLAIMER: Please note that, with some exceptions, the mixer only accepts fader/slider values between 0 and 1, and sending values outside this range may cause unintended behaviour.  
+Using this script to modify mixer values also does not currently respect stereo inputs / outputs configuration.  
+I am not responsible for your mixer's safety or for your live mix. Use this script with care.**
+
 My attempt to build a basic HTML page that can control desired aspects of the Soundcraft Ui series digital mixers.  
 This webpage SHOULD work with the Soundcraft Ui12 directly. Be sure to change the given IP address in the javascript section of the HTML to match your own mixer's IP address.  
 I will attempt to gain access to a Ui16 and/or Ui24 to test as well, but I expect it should work just as well. Modifications to the code would be required.
@@ -11,11 +15,7 @@ You can control the mixer directly by sending a WebSocket message like this: `so
 You'll want to script that with sliders and knobs, etc. This can also be used with network-enabled devices like Arduino (with the network shield) or Espressif ESP 8266/32 series, or Raspberry Pi.  
 
 Using this, it would be possible to translate the messages to and from MIDI signals if you have the programming knowledge.
-
-**DISCLAIMER: Please note that, with some exceptions, the mixer only accepts fader/slider values between 0 and 1, and sending values outside this range may cause unintended behaviour.  
-Using this script to modify mixer values also does not currently respect stereo inputs / outputs configuration.  
-I am not responsible for your mixer's safety or for your live mix. Use this script with care.**
-
+0
 You can fetch the initial starting values of the mixer from a JSON file located at `http://[your-mixer-ip]/js/initparams.js` OR parse the intial values from the Websocket when initially connecting to the mixer.
 
 EXAMPLE UI12 OUTPUT DATA  
