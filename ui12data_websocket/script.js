@@ -56,7 +56,7 @@ socket.onmessage = function(event) {
 function createElements(){
     _doc = document.getElementById("content");
     
-    for(var x = 0; x < _params.length; x++){
+    for(var x = 0; x < _params.length-1; x++){
          createSlider(_doc, x);
     }
 
@@ -129,8 +129,9 @@ function createSlider(element, _index){
     if(slider.id.startsWith("m."))  slider.parentElement.classList.add("master", "output");
     
     if(slider.id.search(/.digitech./) > -1) slider.parentElement.classList.add("digitech");
-    if(slider.id.search(/.dyn./) > -1)      slider.parentElement.classList.add("dyn");
     if(slider.id.search(/.gate./) > -1)     slider.parentElement.classList.add("gate");
+    if(slider.id.search(/.dyn./) > -1)      slider.parentElement.classList.add("dyn");
+    if(slider.id.search(/.deesser./) > -1)  slider.parentElement.classList.add("eq");
     if(slider.id.search(/.eq./) > -1)       slider.parentElement.classList.add("eq");
     if(slider.id.search(/.fx./) > -1)       slider.parentElement.classList.add("fx");
     if(slider.id.search(/.aux./) > -1)      slider.parentElement.classList.add("aux");
