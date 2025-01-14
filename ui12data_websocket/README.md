@@ -1,15 +1,16 @@
 ## uidata_websocket
 
-**DISCLAIMER: Please note that, with some exceptions, the mixer only accepts fader/slider values between 0 and 1, and sending values outside this range may cause unintended behaviour.  
-Using this script to modify mixer values also does not currently respect stereo inputs / outputs configuration.  
+**DISCLAIMER: Please note that the mixer only accepts specific fader/slider values for each parameter, and sending values outside the correct range may cause unintended behaviour.  
+Using this script to modify mixer values also does not currently respect stereo or linked inputs / outputs configuration, this will need to added in the code.  
 I am not responsible for your mixer's safety or for your live mix. Use this script with care.**
 
 My attempt to build a basic HTML page that can control desired aspects of the Soundcraft Ui series digital mixers.  
+This was made possible through code from https://blechtrottel.net/en/jswebsockets.html
+
 This webpage SHOULD work with the Soundcraft Ui12 directly. Be sure to change the given IP address in the javascript section of the HTML to match your own mixer's IP address.  
 I will attempt to gain access to a Ui16 and/or Ui24 to test as well, but I expect it should work just as well. Modifications to the code would be required.
 The webpage `uidata_display.html` only **displays** the incoming control data and RTA data, and cannot send commands back to the mixer.  
 The webpage `index.html` displays the current values of nearly all internal mixer control values, and allows manipulation of said values using sliders. USE WITH CARE.  
-This was made possible through code from https://blechtrottel.net/en/jswebsockets.html
 
 You can control the mixer directly by sending a WebSocket message like this: `socket.send("3:::SETD^i.3.mute^0")` where you can replace the message after "SETD^" with any of the supported messages in the mixer.  
 You'll want to script that with sliders and knobs, etc. This can also be used with network-enabled devices like Arduino (with the network shield) or Espressif ESP 8266/32 series, or Raspberry Pi.  
