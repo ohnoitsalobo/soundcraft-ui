@@ -44,7 +44,8 @@ socket.onmessage = function(event) {
                     var _t = document.getElementById(_params[x][0]);
                     if(_t){
                         _t.value = lineArray[1];
-                        _t.dispatchEvent(updateEvent);
+                        _t.dispatchEvent(new Event('input'));
+                        // _t.dispatchEvent(updateEvent);
                         document.getElementById(`${_t.id}Label`).textContent = `${_t.id}: ${_t.value}`;
                     }
                 }
@@ -111,10 +112,44 @@ function createSlider(element, _index){
     if(slider.id.endsWith("amp")){
         slider.step = '1';
         slider.max = E_AMPS2.length-1;
+        slider.style.display = "none";
+        slider.setAttribute('target', `${slider.id}_select`);
+        const sel = document.createElement('select');
+        sel.setAttribute('target', slider.id);
+        sliderContainer.appendChild(sel);
+        sel.id = `${slider.id}_select`;
+        for(var i = 0; i < E_AMPS2.length; i++){
+            let opt = document.createElement('option');
+            opt.value = E_AMPS2[i][0];
+            opt.innerHTML = E_AMPS2[i][1];
+            sel.appendChild(opt);
+        }
+        sel.addEventListener('change', event => {
+            let target = document.getElementById(event.srcElement.getAttribute('target'));
+            target.value = event.srcElement.selectedIndex;
+            target.dispatchEvent(new Event('input'));
+        });
     }
     if(slider.id.endsWith("cab")){
         slider.step = '1';
         slider.max = E_CABS2.length-1;
+        slider.style.display = "none";
+        slider.setAttribute('target', `${slider.id}_select`);
+        const sel = document.createElement('select');
+        sel.setAttribute('target', slider.id);
+        sliderContainer.appendChild(sel);
+        sel.id = `${slider.id}_select`;
+        for(var i = 0; i < E_CABS2.length; i++){
+            let opt = document.createElement('option');
+            opt.value = E_CABS2[i][0];
+            opt.innerHTML = E_CABS2[i][1];
+            sel.appendChild(opt);
+        }
+        sel.addEventListener('change', event => {
+            let target = document.getElementById(event.srcElement.getAttribute('target'));
+            target.value = event.srcElement.selectedIndex;
+            target.dispatchEvent(new Event('input'));
+        });
     }
     if(slider.id.endsWith("bpm")){
         slider.step = '1';
@@ -150,10 +185,14 @@ function createSlider(element, _index){
         /* */
         var _t = "";
         if(slider.id.endsWith("amp")){
+            let target = document.getElementById(slider.getAttribute('target'));
+            target.selectedIndex = slider.value;
             _t=E_AMPS2[slider.value]; 
             sliderLabel.textContent = `${slider.id}\r\n${_t[1]}`;
             socket.send(`3:::SETD^${slider.id}^${_t[0]}`);
         } else if(slider.id.endsWith("cab")){
+            let target = document.getElementById(slider.getAttribute('target'));
+            target.selectedIndex = slider.value;
             _t=E_CABS2[slider.value];
             sliderLabel.textContent = `${slider.id}\r\n${_t[1]}`;
             socket.send(`3:::SETD^${slider.id}^${_t[0]}`);
@@ -309,10 +348,6 @@ var _params = [
     [ "i.0.digitech.bass", 0.5, 0.5],
     [ "i.0.digitech.mid", 0.5, 0.5],
     [ "i.0.digitech.treble", 0.5, 0.5],
-    [ "i.0.deesser.enabled", 0, 0],
-    [ "i.0.deesser.freq", 0.773310034, 0.773310034],
-    [ "i.0.deesser.ratio", 0.4, 0.4],
-    [ "i.0.deesser.threshold", 0.46875, 0.46875],
     [ "i.0.eq.bypass", 0, 0],
     [ "i.0.eq.hpf.freq", 0, 0],
     [ "i.0.eq.b1.freq", 0.3286901902, 0.3286901902],
@@ -327,6 +362,10 @@ var _params = [
     [ "i.0.eq.b4.freq", 0.887124964, 0.887124964],
     [ "i.0.eq.b4.gain", 0.5, 0.5],
     [ "i.0.eq.b4.q", 0.5252185347, 0.5252185347],
+    [ "i.0.deesser.enabled", 0, 0],
+    [ "i.0.deesser.freq", 0.773310034, 0.773310034],
+    [ "i.0.deesser.ratio", 0.4, 0.4],
+    [ "i.0.deesser.threshold", 0.46875, 0.46875],
     [ "i.0.gate.bypass", 0, 0],
     [ "i.0.gate.thresh", 0, 0],
     [ "i.0.gate.depth", 0, 0],
@@ -390,10 +429,6 @@ var _params = [
     [ "i.1.digitech.bass", 0.5, 0.5],
     [ "i.1.digitech.mid", 0.5, 0.5],
     [ "i.1.digitech.treble", 0.5, 0.5],
-    [ "i.1.deesser.enabled", 0, 0],
-    [ "i.1.deesser.freq", 0.773310034, 0.773310034],
-    [ "i.1.deesser.ratio", 0.4, 0.4],
-    [ "i.1.deesser.threshold", 0.46875, 0.46875],
     [ "i.1.eq.bypass", 0, 0],
     [ "i.1.eq.hpf.freq", 0, 0],
     [ "i.1.eq.b1.freq", 0.3286901902, 0.3286901902],
@@ -408,6 +443,10 @@ var _params = [
     [ "i.1.eq.b4.freq", 0.887124964, 0.887124964],
     [ "i.1.eq.b4.gain", 0.5, 0.5],
     [ "i.1.eq.b4.q", 0.5252185347, 0.5252185347],
+    [ "i.1.deesser.enabled", 0, 0],
+    [ "i.1.deesser.freq", 0.773310034, 0.773310034],
+    [ "i.1.deesser.ratio", 0.4, 0.4],
+    [ "i.1.deesser.threshold", 0.46875, 0.46875],
     [ "i.1.gate.bypass", 0, 0],
     [ "i.1.gate.thresh", 0, 0],
     [ "i.1.gate.depth", 0, 0],
@@ -462,10 +501,6 @@ var _params = [
     [ "i.2.solo", 0, 0],
     [ "i.2.phantom", 0, 0],
     [ "i.2.invert", 0, 0],
-    [ "i.2.deesser.enabled", 0, 0],
-    [ "i.2.deesser.freq", 0.773310034, 0.773310034],
-    [ "i.2.deesser.ratio", 0.4, 0.4],
-    [ "i.2.deesser.threshold", 0.46875, 0.46875],
     [ "i.2.eq.bypass", 0, 0],
     [ "i.2.eq.hpf.freq", 0, 0],
     [ "i.2.eq.b1.freq", 0.3286901902, 0.3286901902],
@@ -480,6 +515,10 @@ var _params = [
     [ "i.2.eq.b4.freq", 0.887124964, 0.887124964],
     [ "i.2.eq.b4.gain", 0.5, 0.5],
     [ "i.2.eq.b4.q", 0.5252185347, 0.5252185347],
+    [ "i.2.deesser.enabled", 0, 0],
+    [ "i.2.deesser.freq", 0.773310034, 0.773310034],
+    [ "i.2.deesser.ratio", 0.4, 0.4],
+    [ "i.2.deesser.threshold", 0.46875, 0.46875],
     [ "i.2.gate.bypass", 0, 0],
     [ "i.2.gate.thresh", 0, 0],
     [ "i.2.gate.depth", 0, 0],
@@ -534,10 +573,6 @@ var _params = [
     [ "i.3.solo", 0, 0],
     [ "i.3.phantom", 0, 0],
     [ "i.3.invert", 0, 0],
-    [ "i.3.deesser.enabled", 0, 0],
-    [ "i.3.deesser.freq", 0.773310034, 0.773310034],
-    [ "i.3.deesser.ratio", 0.4, 0.4],
-    [ "i.3.deesser.threshold", 0.46875, 0.46875],
     [ "i.3.eq.bypass", 0, 0],
     [ "i.3.eq.hpf.freq", 0, 0],
     [ "i.3.eq.b1.freq", 0.3286901902, 0.3286901902],
@@ -552,6 +587,10 @@ var _params = [
     [ "i.3.eq.b4.freq", 0.887124964, 0.887124964],
     [ "i.3.eq.b4.gain", 0.5, 0.5],
     [ "i.3.eq.b4.q", 0.5252185347, 0.5252185347],
+    [ "i.3.deesser.enabled", 0, 0],
+    [ "i.3.deesser.freq", 0.773310034, 0.773310034],
+    [ "i.3.deesser.ratio", 0.4, 0.4],
+    [ "i.3.deesser.threshold", 0.46875, 0.46875],
     [ "i.3.gate.bypass", 0, 0],
     [ "i.3.gate.thresh", 0, 0],
     [ "i.3.gate.depth", 0, 0],
@@ -606,10 +645,6 @@ var _params = [
     [ "i.4.solo", 0, 0],
     [ "i.4.phantom", 0, 0],
     [ "i.4.invert", 0, 0],
-    [ "i.4.deesser.enabled", 0, 0],
-    [ "i.4.deesser.freq", 0.773310034, 0.773310034],
-    [ "i.4.deesser.ratio", 0.4, 0.4],
-    [ "i.4.deesser.threshold", 0.46875, 0.46875],
     [ "i.4.eq.bypass", 0, 0],
     [ "i.4.eq.hpf.freq", 0, 0],
     [ "i.4.eq.b1.freq", 0.3286901902, 0.3286901902],
@@ -624,6 +659,10 @@ var _params = [
     [ "i.4.eq.b4.freq", 0.887124964, 0.887124964],
     [ "i.4.eq.b4.gain", 0.5, 0.5],
     [ "i.4.eq.b4.q", 0.5252185347, 0.5252185347],
+    [ "i.4.deesser.enabled", 0, 0],
+    [ "i.4.deesser.freq", 0.773310034, 0.773310034],
+    [ "i.4.deesser.ratio", 0.4, 0.4],
+    [ "i.4.deesser.threshold", 0.46875, 0.46875],
     [ "i.4.gate.bypass", 0, 0],
     [ "i.4.gate.thresh", 0, 0],
     [ "i.4.gate.depth", 0, 0],
@@ -678,10 +717,6 @@ var _params = [
     [ "i.5.solo", 0, 0],
     [ "i.5.phantom", 0, 0],
     [ "i.5.invert", 0, 0],
-    [ "i.5.deesser.enabled", 0, 0],
-    [ "i.5.deesser.freq", 0.773310034, 0.773310034],
-    [ "i.5.deesser.ratio", 0.4, 0.4],
-    [ "i.5.deesser.threshold", 0.46875, 0.46875],
     [ "i.5.eq.bypass", 0, 0],
     [ "i.5.eq.hpf.freq", 0, 0],
     [ "i.5.eq.b1.freq", 0.3286901902, 0.3286901902],
@@ -696,6 +731,10 @@ var _params = [
     [ "i.5.eq.b4.freq", 0.887124964, 0.887124964],
     [ "i.5.eq.b4.gain", 0.5, 0.5],
     [ "i.5.eq.b4.q", 0.5252185347, 0.5252185347],
+    [ "i.5.deesser.enabled", 0, 0],
+    [ "i.5.deesser.freq", 0.773310034, 0.773310034],
+    [ "i.5.deesser.ratio", 0.4, 0.4],
+    [ "i.5.deesser.threshold", 0.46875, 0.46875],
     [ "i.5.gate.bypass", 0, 0],
     [ "i.5.gate.thresh", 0, 0],
     [ "i.5.gate.depth", 0, 0],
@@ -750,10 +789,6 @@ var _params = [
     [ "i.6.solo", 0, 0],
     [ "i.6.phantom", 0, 0],
     [ "i.6.invert", 0, 0],
-    [ "i.6.deesser.enabled", 0, 0],
-    [ "i.6.deesser.freq", 0.773310034, 0.773310034],
-    [ "i.6.deesser.ratio", 0.4, 0.4],
-    [ "i.6.deesser.threshold", 0.46875, 0.46875],
     [ "i.6.eq.bypass", 0, 0],
     [ "i.6.eq.hpf.freq", 0, 0],
     [ "i.6.eq.b1.freq", 0.3286901902, 0.3286901902],
@@ -768,6 +803,10 @@ var _params = [
     [ "i.6.eq.b4.freq", 0.887124964, 0.887124964],
     [ "i.6.eq.b4.gain", 0.5, 0.5],
     [ "i.6.eq.b4.q", 0.5252185347, 0.5252185347],
+    [ "i.6.deesser.enabled", 0, 0],
+    [ "i.6.deesser.freq", 0.773310034, 0.773310034],
+    [ "i.6.deesser.ratio", 0.4, 0.4],
+    [ "i.6.deesser.threshold", 0.46875, 0.46875],
     [ "i.6.gate.bypass", 0, 0],
     [ "i.6.gate.thresh", 0, 0],
     [ "i.6.gate.depth", 0, 0],
@@ -822,10 +861,6 @@ var _params = [
     [ "i.7.solo", 0, 0],
     [ "i.7.phantom", 0, 0],
     [ "i.7.invert", 0, 0],
-    [ "i.7.deesser.enabled", 0, 0],
-    [ "i.7.deesser.freq", 0.773310034, 0.773310034],
-    [ "i.7.deesser.ratio", 0.4, 0.4],
-    [ "i.7.deesser.threshold", 0.46875, 0.46875],
     [ "i.7.eq.bypass", 0, 0],
     [ "i.7.eq.hpf.freq", 0, 0],
     [ "i.7.eq.b1.freq", 0.3286901902, 0.3286901902],
@@ -840,6 +875,10 @@ var _params = [
     [ "i.7.eq.b4.freq", 0.887124964, 0.887124964],
     [ "i.7.eq.b4.gain", 0.5, 0.5],
     [ "i.7.eq.b4.q", 0.5252185347, 0.5252185347],
+    [ "i.7.deesser.enabled", 0, 0],
+    [ "i.7.deesser.freq", 0.773310034, 0.773310034],
+    [ "i.7.deesser.ratio", 0.4, 0.4],
+    [ "i.7.deesser.threshold", 0.46875, 0.46875],
     [ "i.7.gate.bypass", 0, 0],
     [ "i.7.gate.thresh", 0, 0],
     [ "i.7.gate.depth", 0, 0],

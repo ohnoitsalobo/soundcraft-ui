@@ -24,7 +24,7 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 .eq {
-    background-color: rgba(255, 0, 0, 0.2);
+    background-color: rgba(255, 0, 0, 0.1);
 }
 
 .dyn, .gate{
@@ -32,9 +32,9 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 .fx {
-    background-color: rgba(0, 0, 255, 0.2);
+    background-color: rgba(255, 0, 255, 0.1);
 }
 
 .aux {
-    background-color: rgba(0, 255, 255, 0.2);
+    background-color: rgba(255, 255, 0, 0.1);
 }
