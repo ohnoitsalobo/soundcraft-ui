@@ -165,6 +165,10 @@ function createSlider(element, _index){
     slider.classList.add("slider");
     
     // add classes for later styling
+    for(let i = 0; i < _inout.length; i++){
+        if(slider.id.startsWith(_inout[i]))
+            sliderContainer.classList.add(_inout[i]);
+    }
     if(slider.id.startsWith("i."))  slider.parentElement.classList.add("input");
     if(slider.id.startsWith("l."))  slider.parentElement.classList.add("line", "input");
     if(slider.id.startsWith("p."))  slider.parentElement.classList.add("usb");
@@ -234,6 +238,15 @@ function createSlider(element, _index){
             }
         }
         /* */
+        if(slider.id.endsWith("color")){
+            sliderLabel.textContent = `${slider.id}: ${_colors1[slider.value]}`;
+            let _t = slider.id.replace('.color', '');
+            let _x = document.getElementsByClassName(_t);
+            console.log (_x);
+            for(let i = 0; i < _x.length; i++){
+                _x[i].style.borderColor = _colors[slider.value];
+            }
+        }
     });
     
     // double click on slider to reset to default value
@@ -344,13 +357,22 @@ var E_AMPS2=[ // 48
     [ 53, "Acoustic Jumbo"]
 ];
 
-var _inout = [ "i.0.", "i.1.", "i.2.", "i.3.",      // inputs
-               "i.4.", "i.5.", "i.6.", "i.7.",      // inputs
-               "l.0.", "l.1.", "p.0.", "p.1.",      // line in, USB
-               "s.0.", "s.1.", "s.2.", "s.3.",      // subgroups
-               "f.0.", "f.1.", "f.2.", "f.3.",      // FX
-               "a.0.", "a.1.", "a.2.", "a.3.", "m." // aux, master
+var _inout = [ "i.0", "i.1", "i.2", "i.3",     // inputs
+               "i.4", "i.5", "i.6", "i.7",     // inputs
+               "l.0", "l.1", "p.0", "p.1",     // line in, USB
+               "s.0", "s.1", "s.2", "s.3",     // subgroups
+               "f.0", "f.1", "f.2", "f.3",     // FX
+               "a.0", "a.1", "a.2", "a.3", "m" // aux, master
               ];
+
+var _colors = [ "#000000", "#111111", "#8B0000", "#FF0000",
+                "#FFA500", "#FFFF00", "#56DE43", "#0091C2",
+                "#9400D3", "#808080", "#FFFFFF", "#FF1493" 
+              ];
+var _colors1 = [ "Off", "Black", "Dark Red", "Red",
+                 "Gold", "Yellow", "Green", "Blue",
+                 "Purple", "Gray", "White", "Pink" 
+               ];
 /* */
 var _params = [
 // ----------------------------------------- INPUT 1

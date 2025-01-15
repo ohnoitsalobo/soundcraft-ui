@@ -1,6 +1,6 @@
 body {
     font-family: Consolas, monospace;
-    font-size: 0.7em;
+    font-size: 1em;
     background: black;
     color: white;
     white-space: pre-line;
@@ -19,12 +19,18 @@ input[type=range]::-webkit-slider-thumb {
     pointer-events: auto !important;
 }
 
-.slider{
-    
+select{
+    padding: 3px;
+    margin: 3px;
+}
+
+.input{
+    border-style: none none none solid;
+    border-width: 10px;
 }
 
 .eq {
-    background-color: rgba(255, 0, 0, 0.1);
+    background-color: rgba(255, 0, 0, 0.2);
 }
 
 .dyn, .gate{
@@ -32,9 +38,9 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 .fx {
-    background-color: rgba(255, 0, 255, 0.1);
+    background-color: rgba(255, 0, 255, 0.2);
 }
 
 .aux {
-    background-color: rgba(255, 255, 0, 0.1);
+    background-color: rgba(255, 255, 0, 0.2);
 }
