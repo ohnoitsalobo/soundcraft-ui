@@ -116,6 +116,11 @@ function createSlider(element, _index){
         slider.step = '1';
         slider.max = E_CABS2.length-1;
     }
+    if(slider.id.endsWith("bpm")){
+        slider.step = '1';
+        slider.min = '30';
+        slider.max = '300';
+    }
     slider.value = _params[_index][1];
     slider.classList.add("slider");
     
