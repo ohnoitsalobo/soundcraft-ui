@@ -46,7 +46,7 @@ socket.onmessage = function(event) {
                         _t.value = lineArray[1];
                         _t.dispatchEvent(new Event('input'));
                         // _t.dispatchEvent(updateEvent);
-                        document.getElementById(`${_t.id}Label`).textContent = `${_t.id}: ${_t.value}`;
+                        // document.getElementById(`${_t.id}Label`).textContent = `${_t.id}: ${_t.value}`;
                     }
                 }
             }
@@ -68,8 +68,12 @@ function createSlider(element, _index){
     // Create the slider container
     const sliderContainer = document.createElement('div');
     sliderContainer.style.display = 'flex';
-    sliderContainer.style.flexDirection = 'row';
-    sliderContainer.style.justifyContent = 'space-between';
+    sliderContainer.style.flexDirection = 'column';
+    sliderContainer.style.justifyContent = 'center';
+    sliderContainer.style.marginTop    = '5px';
+    sliderContainer.style.marginBottom = '5px';
+    sliderContainer.style.paddingLeft   = '10px';
+    sliderContainer.style.paddingRight  = '10px';
 
     // Create the slider label
     const sliderLabel = document.createElement('div');
@@ -78,13 +82,14 @@ function createSlider(element, _index){
     // Create the slider input
     const slider = document.createElement('input');
     slider.type = 'range';
-    slider.style.width = '50%';
+    slider.style.width = '100%';
     slider.id = _params[_index][0];
     slider.min = '0';
     slider.max = '1';
     slider.step = '0.0001';
 
     sliderContainer.appendChild(sliderLabel);
+    sliderContainer.appendChild(document.createElement("br"));
     sliderContainer.appendChild(slider);
     
     // adjust ranges and steps for different controls
@@ -175,7 +180,7 @@ function createSlider(element, _index){
     if(slider.id.search(/.eq./) > -1)       slider.parentElement.classList.add("eq");
     if(slider.id.search(/.fx./) > -1)       slider.parentElement.classList.add("fx");
     if(slider.id.search(/.aux./) > -1)      slider.parentElement.classList.add("aux");
-
+    
     // Create a label to display the slider's value
     sliderLabel.textContent = `${slider.id}: ${slider.value}`;
     sliderLabel.id =`${slider.id}Label`;
@@ -184,6 +189,7 @@ function createSlider(element, _index){
     slider.addEventListener('input', () => {
         /* */
         var _t = "";
+        if(slider.id.endsWith("digitech.enabled"))  digitechEnabled(slider);
         if(slider.id.endsWith("amp")){
             let target = document.getElementById(slider.getAttribute('target'));
             target.selectedIndex = slider.value;
@@ -242,6 +248,23 @@ function createSlider(element, _index){
     
     element.appendChild(sliderContainer);
     /* */
+}
+
+function digitechEnabled(target){
+    let _t = target.id.replace('enabled', '');
+    let _x = document.getElementsByClassName('digitech');
+    for(var i = 0; i < _x.length; i++){
+        let _y = _x[i].childNodes;
+        for(var j = 0; j < _y.length; j++){
+            if(_y[j].id.startsWith(_t)){
+                if(target.value == 0)
+                    _y[j].setAttribute('disabled', '1');
+                else
+                    _y[j].removeAttribute('disabled');
+            }
+        }
+    }
+    target.removeAttribute('disabled');
 }
 
 var E_CABS2=[ // 23
@@ -377,8 +400,8 @@ var _params = [
     [ "i.0.dyn.threshold", 0.875, 0.875],
     [ "i.0.dyn.ratio", 1, 1],
     [ "i.0.dyn.attack", 0.34375, 0.34375],
-    [ "i.0.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.0.dyn.release", 0.4887695312, 0.4887695312],
+    [ "i.0.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.0.fx.0.mute", 0, 0],
     [ "i.0.fx.1.mute", 0, 0],
     [ "i.0.fx.2.mute", 0, 0],
@@ -458,8 +481,8 @@ var _params = [
     [ "i.1.dyn.threshold", 0.875, 0.875],
     [ "i.1.dyn.ratio", 1, 1],
     [ "i.1.dyn.attack", 0.34375, 0.34375],
-    [ "i.1.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.1.dyn.release", 0.4887695312, 0.4887695312],
+    [ "i.1.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.1.fx.0.mute", 0, 0],
     [ "i.1.fx.1.mute", 0, 0],
     [ "i.1.fx.2.mute", 0, 0],
@@ -530,8 +553,8 @@ var _params = [
     [ "i.2.dyn.threshold", 0.875, 0.875],
     [ "i.2.dyn.ratio", 1, 1],
     [ "i.2.dyn.attack", 0.34375, 0.34375],
-    [ "i.2.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.2.dyn.release", 0.4887695312, 0.4887695312],
+    [ "i.2.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.2.fx.0.mute", 0, 0],
     [ "i.2.fx.1.mute", 0, 0],
     [ "i.2.fx.2.mute", 0, 0],
@@ -602,8 +625,8 @@ var _params = [
     [ "i.3.dyn.threshold", 0.875, 0.875],
     [ "i.3.dyn.ratio", 1, 1],
     [ "i.3.dyn.attack", 0.34375, 0.34375],
-    [ "i.3.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.3.dyn.release", 0.4887695312, 0.4887695312],
+    [ "i.3.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.3.fx.0.mute", 0, 0],
     [ "i.3.fx.1.mute", 0, 0],
     [ "i.3.fx.2.mute", 0, 0],
@@ -674,8 +697,8 @@ var _params = [
     [ "i.4.dyn.threshold", 0.875, 0.875],
     [ "i.4.dyn.ratio", 1, 1],
     [ "i.4.dyn.attack", 0.34375, 0.34375],
-    [ "i.4.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.4.dyn.release", 0.4887695312, 0.4887695312],
+    [ "i.4.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.4.fx.0.mute", 0, 0],
     [ "i.4.fx.1.mute", 0, 0],
     [ "i.4.fx.2.mute", 0, 0],
@@ -746,8 +769,8 @@ var _params = [
     [ "i.5.dyn.threshold", 0.875, 0.875],
     [ "i.5.dyn.ratio", 1, 1],
     [ "i.5.dyn.attack", 0.34375, 0.34375],
-    [ "i.5.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.5.dyn.release", 0.4887695312, 0.4887695312],
+    [ "i.5.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.5.fx.0.mute", 0, 0],
     [ "i.5.fx.1.mute", 0, 0],
     [ "i.5.fx.2.mute", 0, 0],
@@ -818,8 +841,8 @@ var _params = [
     [ "i.6.dyn.threshold", 0.875, 0.875],
     [ "i.6.dyn.ratio", 1, 1],
     [ "i.6.dyn.attack", 0.34375, 0.34375],
-    [ "i.6.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.6.dyn.release", 0.4887695312, 0.4887695312],
+    [ "i.6.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.6.fx.0.mute", 0, 0],
     [ "i.6.fx.1.mute", 0, 0],
     [ "i.6.fx.2.mute", 0, 0],
@@ -890,8 +913,8 @@ var _params = [
     [ "i.7.dyn.threshold", 0.875, 0.875],
     [ "i.7.dyn.ratio", 1, 1],
     [ "i.7.dyn.attack", 0.34375, 0.34375],
-    [ "i.7.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.7.dyn.release", 0.4887695312, 0.4887695312],
+    [ "i.7.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "i.7.fx.0.mute", 0, 0],
     [ "i.7.fx.1.mute", 0, 0],
     [ "i.7.fx.2.mute", 0, 0],
@@ -956,8 +979,8 @@ var _params = [
     [ "l.0.dyn.threshold", 0.875, 0.875],
     [ "l.0.dyn.ratio", 1, 1],
     [ "l.0.dyn.attack", 0.34375, 0.34375],
-    [ "l.0.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "l.0.dyn.release", 0.4887695312, 0.4887695312],
+    [ "l.0.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "l.0.fx.0.mute", 0, 0],
     [ "l.0.fx.1.mute", 0, 0],
     [ "l.0.fx.2.mute", 0, 0],
@@ -1022,8 +1045,8 @@ var _params = [
     [ "l.1.dyn.threshold", 0.875, 0.875],
     [ "l.1.dyn.ratio", 1, 1],
     [ "l.1.dyn.attack", 0.34375, 0.34375],
-    [ "l.1.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "l.1.dyn.release", 0.4887695312, 0.4887695312],
+    [ "l.1.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "l.1.fx.0.mute", 0, 0],
     [ "l.1.fx.1.mute", 0, 0],
     [ "l.1.fx.2.mute", 0, 0],
@@ -1087,8 +1110,8 @@ var _params = [
     [ "p.0.dyn.threshold", 0.875, 0.875],
     [ "p.0.dyn.ratio", 1, 1],
     [ "p.0.dyn.attack", 0.34375, 0.34375],
-    [ "p.0.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "p.0.dyn.release", 0.4887695312, 0.4887695312],
+    [ "p.0.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "p.0.fx.0.mute", 0, 0],
     [ "p.0.fx.1.mute", 0, 0],
     [ "p.0.fx.2.mute", 0, 0],
@@ -1152,8 +1175,8 @@ var _params = [
     [ "p.1.dyn.threshold", 0.875, 0.875],
     [ "p.1.dyn.ratio", 1, 1],
     [ "p.1.dyn.attack", 0.34375, 0.34375],
-    [ "p.1.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "p.1.dyn.release", 0.4887695312, 0.4887695312],
+    [ "p.1.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "p.1.fx.0.mute", 0, 0],
     [ "p.1.fx.1.mute", 0, 0],
     [ "p.1.fx.2.mute", 0, 0],
@@ -1217,8 +1240,8 @@ var _params = [
     [ "s.0.dyn.threshold", 0.875, 0.875],
     [ "s.0.dyn.ratio", 1, 1],
     [ "s.0.dyn.attack", 0.34375, 0.34375],
-    [ "s.0.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "s.0.dyn.release", 0.4887695312, 0.4887695312],
+    [ "s.0.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "s.0.fx.0.mute", 0, 0],
     [ "s.0.fx.1.mute", 0, 0],
     [ "s.0.fx.2.mute", 0, 0],
@@ -1262,8 +1285,8 @@ var _params = [
     [ "s.1.dyn.threshold", 0.875, 0.875],
     [ "s.1.dyn.ratio", 1, 1],
     [ "s.1.dyn.attack", 0.34375, 0.34375],
-    [ "s.1.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "s.1.dyn.release", 0.4887695312, 0.4887695312],
+    [ "s.1.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "s.1.fx.0.mute", 0, 0],
     [ "s.1.fx.1.mute", 0, 0],
     [ "s.1.fx.2.mute", 0, 0],
@@ -1307,8 +1330,8 @@ var _params = [
     [ "s.2.dyn.threshold", 0.875, 0.875],
     [ "s.2.dyn.ratio", 1, 1],
     [ "s.2.dyn.attack", 0.34375, 0.34375],
-    [ "s.2.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "s.2.dyn.release", 0.4887695312, 0.4887695312],
+    [ "s.2.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "s.2.fx.0.mute", 0, 0],
     [ "s.2.fx.1.mute", 0, 0],
     [ "s.2.fx.2.mute", 0, 0],
@@ -1352,8 +1375,8 @@ var _params = [
     [ "s.3.dyn.threshold", 0.875, 0.875],
     [ "s.3.dyn.ratio", 1, 1],
     [ "s.3.dyn.attack", 0.34375, 0.34375],
-    [ "s.3.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "s.3.dyn.release", 0.4887695312, 0.4887695312],
+    [ "s.3.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "s.3.fx.0.mute", 0, 0],
     [ "s.3.fx.1.mute", 0, 0],
     [ "s.3.fx.2.mute", 0, 0],
@@ -1402,8 +1425,8 @@ var _params = [
     [ "f.0.dyn.threshold", 0.875, 0.875],
     [ "f.0.dyn.ratio", 1, 1],
     [ "f.0.dyn.attack", 0.34375, 0.34375],
-    [ "f.0.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "f.0.dyn.release", 0.4887695312, 0.4887695312],
+    [ "f.0.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "f.0.aux.0.mute", 0, 0],
     [ "f.0.aux.1.mute", 0, 0],
     [ "f.0.aux.2.mute", 0, 0],
@@ -1460,8 +1483,8 @@ var _params = [
     [ "f.1.dyn.threshold", 0.875, 0.875],
     [ "f.1.dyn.ratio", 1, 1],
     [ "f.1.dyn.attack", 0.34375, 0.34375],
-    [ "f.1.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "f.1.dyn.release", 0.4887695312, 0.4887695312],
+    [ "f.1.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "f.1.aux.0.mute", 0, 0],
     [ "f.1.aux.1.mute", 0, 0],
     [ "f.1.aux.2.mute", 0, 0],
@@ -1516,8 +1539,8 @@ var _params = [
     [ "f.2.dyn.threshold", 0.875, 0.875],
     [ "f.2.dyn.ratio", 1, 1],
     [ "f.2.dyn.attack", 0.34375, 0.34375],
-    [ "f.2.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "f.2.dyn.release", 0.4887695312, 0.4887695312],
+    [ "f.2.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "f.2.aux.0.mute", 0, 0],
     [ "f.2.aux.1.mute", 0, 0],
     [ "f.2.aux.2.mute", 0, 0],
@@ -1574,8 +1597,8 @@ var _params = [
     [ "f.3.dyn.threshold", 0.875, 0.875],
     [ "f.3.dyn.ratio", 1, 1],
     [ "f.3.dyn.attack", 0.34375, 0.34375],
-    [ "f.3.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "f.3.dyn.release", 0.4887695312, 0.4887695312],
+    [ "f.3.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "f.3.aux.0.mute", 0, 0],
     [ "f.3.aux.1.mute", 0, 0],
     [ "f.3.aux.2.mute", 0, 0],
@@ -1656,8 +1679,8 @@ var _params = [
     [ "a.0.dyn.threshold", 0.875, 0.875],
     [ "a.0.dyn.ratio", 1, 1],
     [ "a.0.dyn.attack", 0.34375, 0.34375],
-    [ "a.0.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "a.0.dyn.release", 0.4887695312, 0.4887695312],
+    [ "a.0.dyn.outgain", 0.3334960938, 0.3334960938],
     //  [ "a.0.forceunmute", 0, 0],
     //  [ "a.0.link2master", 0, 0],
     //  [ "a.0.mgmask", 0, 0],
@@ -1723,8 +1746,8 @@ var _params = [
     [ "a.1.dyn.threshold", 0.875, 0.875],
     [ "a.1.dyn.ratio", 1, 1],
     [ "a.1.dyn.attack", 0.34375, 0.34375],
-    [ "a.1.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "a.1.dyn.release", 0.4887695312, 0.4887695312],
+    [ "a.1.dyn.outgain", 0.3334960938, 0.3334960938],
     //  [ "a.1.forceunmute", 0, 0],
     //  [ "a.1.link2master", 0, 0],
     //  [ "a.1.mgmask", 0, 0],
@@ -1790,8 +1813,8 @@ var _params = [
     [ "a.2.dyn.threshold", 0.875, 0.875],
     [ "a.2.dyn.ratio", 1, 1],
     [ "a.2.dyn.attack", 0.34375, 0.34375],
-    [ "a.2.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "a.2.dyn.release", 0.4887695312, 0.4887695312],
+    [ "a.2.dyn.outgain", 0.3334960938, 0.3334960938],
     //  [ "a.2.forceunmute", 0, 0],
     //  [ "a.2.link2master", 0, 0],
     //  [ "a.2.mgmask", 0, 0],
@@ -1857,8 +1880,8 @@ var _params = [
     [ "a.3.dyn.threshold", 0.875, 0.875],
     [ "a.3.dyn.ratio", 1, 1],
     [ "a.3.dyn.attack", 0.34375, 0.34375],
-    [ "a.3.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "a.3.dyn.release", 0.4887695312, 0.4887695312],
+    [ "a.3.dyn.outgain", 0.3334960938, 0.3334960938],
     //  [ "a.3.forceunmute", 0, 0],
     //  [ "a.3.link2master", 0, 0],
     //  [ "a.3.mgmask", 0, 0],
