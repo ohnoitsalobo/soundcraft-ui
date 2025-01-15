@@ -87,17 +87,17 @@ function createSlider(element, _index){
     sliderContainer.appendChild(slider);
     
     // adjust ranges and steps for different controls
-    if(slider.id.endsWith("mute")     ||
+    if(slider.id.endsWith("bypass")   ||
        slider.id.endsWith("enabled")  ||
-       slider.id.endsWith("bypass")   ||
-       slider.id.endsWith("softknee") ||
        slider.id.endsWith("hiz")      ||
        slider.id.endsWith("invert")   ||
-       slider.id.endsWith("phantom")  ||
+       slider.id.endsWith("linked")   ||
+       slider.id.endsWith("mute")     ||
+       slider.id.endsWith("softknee") ||
        slider.id.endsWith("solo")     ||
+       slider.id.endsWith("phantom")  ||
        slider.id.endsWith("post")     ||
-       slider.id.endsWith("postproc")     ||
-       slider.id.endsWith("invert") ){
+       slider.id.endsWith("postproc") ){
         slider.step = '1';
         slider.style.width = "100px";
         sliderContainer.style.justifyContent = 'space-evenly';
@@ -185,6 +185,8 @@ function createSlider(element, _index){
         }
         /* */
     });
+    
+    // double click on slider to reset to default value
     slider.addEventListener('dblclick', () => {
         slider.value = _params[_index][2];
         slider.dispatchEvent(new Event('input'));
@@ -1358,18 +1360,6 @@ var _params = [
     [ "f.0.dyn.attack", 0.34375, 0.34375],
     [ "f.0.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "f.0.dyn.release", 0.4887695312, 0.4887695312],
-    [ "f.0.fx.0.mute", 0, 0],
-    [ "f.0.fx.1.mute", 0, 0],
-    [ "f.0.fx.2.mute", 0, 0],
-    [ "f.0.fx.3.mute", 0, 0],
-    [ "f.0.fx.0.post", 1, 1],
-    [ "f.0.fx.1.post", 1, 1],
-    [ "f.0.fx.2.post", 1, 1],
-    [ "f.0.fx.3.post", 1, 1],
-    [ "f.0.fx.0.value", 0, 0],
-    [ "f.0.fx.1.value", 0, 0],
-    [ "f.0.fx.2.value", 0, 0],
-    [ "f.0.fx.3.value", 0, 0],
     [ "f.0.aux.0.mute", 0, 0],
     [ "f.0.aux.1.mute", 0, 0],
     [ "f.0.aux.2.mute", 0, 0],
@@ -1428,18 +1418,6 @@ var _params = [
     [ "f.1.dyn.attack", 0.34375, 0.34375],
     [ "f.1.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "f.1.dyn.release", 0.4887695312, 0.4887695312],
-    [ "f.1.fx.0.mute", 0, 0],
-    [ "f.1.fx.1.mute", 0, 0],
-    [ "f.1.fx.2.mute", 0, 0],
-    [ "f.1.fx.3.mute", 0, 0],
-    [ "f.1.fx.0.post", 1, 1],
-    [ "f.1.fx.1.post", 1, 1],
-    [ "f.1.fx.2.post", 1, 1],
-    [ "f.1.fx.3.post", 1, 1],
-    [ "f.1.fx.0.value", 0, 0],
-    [ "f.1.fx.1.value", 0, 0],
-    [ "f.1.fx.2.value", 0, 0],
-    [ "f.1.fx.3.value", 0, 0],
     [ "f.1.aux.0.mute", 0, 0],
     [ "f.1.aux.1.mute", 0, 0],
     [ "f.1.aux.2.mute", 0, 0],
@@ -1496,18 +1474,6 @@ var _params = [
     [ "f.2.dyn.attack", 0.34375, 0.34375],
     [ "f.2.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "f.2.dyn.release", 0.4887695312, 0.4887695312],
-    [ "f.2.fx.0.mute", 0, 0],
-    [ "f.2.fx.1.mute", 0, 0],
-    [ "f.2.fx.2.mute", 0, 0],
-    [ "f.2.fx.3.mute", 0, 0],
-    [ "f.2.fx.0.post", 1, 1],
-    [ "f.2.fx.1.post", 1, 1],
-    [ "f.2.fx.2.post", 1, 1],
-    [ "f.2.fx.3.post", 1, 1],
-    [ "f.2.fx.0.value", 0, 0],
-    [ "f.2.fx.1.value", 0, 0],
-    [ "f.2.fx.2.value", 0, 0],
-    [ "f.2.fx.3.value", 0, 0],
     [ "f.2.aux.0.mute", 0, 0],
     [ "f.2.aux.1.mute", 0, 0],
     [ "f.2.aux.2.mute", 0, 0],
@@ -1566,18 +1532,6 @@ var _params = [
     [ "f.3.dyn.attack", 0.34375, 0.34375],
     [ "f.3.dyn.outgain", 0.3334960938, 0.3334960938],
     [ "f.3.dyn.release", 0.4887695312, 0.4887695312],
-    [ "f.3.fx.0.mute", 0, 0],
-    [ "f.3.fx.1.mute", 0, 0],
-    [ "f.3.fx.2.mute", 0, 0],
-    [ "f.3.fx.3.mute", 0, 0],
-    [ "f.3.fx.0.post", 1, 1],
-    [ "f.3.fx.1.post", 1, 1],
-    [ "f.3.fx.2.post", 1, 1],
-    [ "f.3.fx.3.post", 1, 1],
-    [ "f.3.fx.0.value", 0, 0],
-    [ "f.3.fx.1.value", 0, 0],
-    [ "f.3.fx.2.value", 0, 0],
-    [ "f.3.fx.3.value", 0, 0],
     [ "f.3.aux.0.mute", 0, 0],
     [ "f.3.aux.1.mute", 0, 0],
     [ "f.3.aux.2.mute", 0, 0],
