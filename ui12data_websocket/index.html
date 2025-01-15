@@ -69,7 +69,7 @@ select{
 <script>
 const defaultIp = "192.168.137.3"; // change this to your own mixer IP or just input it with the prompt
 const MIXER_IP = prompt("Please enter the IP address:", defaultIp) || defaultIp;
-const socket = new WebSocket("ws://"+MIXER_IP+":80");
+const socket = new WebSocket("https://echo.websocket.org/"); // new WebSocket("ws://"+MIXER_IP+":80");
 const _alive_ = "3:::ALIVE"; var _keepAlive; // used to maintain the Websocket connection
 
 socket.onerror = function(error) {
@@ -96,7 +96,7 @@ socket.onclose = () => {
 let updateEvent = new CustomEvent("update");
 socket.onmessage = function(event) {
     
-    received = event.data;
+    received = "";//event.data;
     
     receivedArray = received.split(/\r?\n/);
     receivedArray.forEach(line => {
@@ -262,7 +262,9 @@ function createSlider(element, _index){
     slider.addEventListener('input', () => {
         /* */
         var _t = "";
-        if(slider.id.endsWith("digitech.enabled"))  digitechEnabled(slider);
+        // if(slider.id.endsWith("digitech.enabled"))  digitechEnabled(slider);
+        if(slider.id.endsWith("bypass"))  _bypass(slider);
+        if(slider.id.endsWith("enabled"))  _enabled(slider);
         if(slider.id.endsWith("amp")){
             let target = document.getElementById(slider.getAttribute('target'));
             target.selectedIndex = slider.value;
@@ -311,7 +313,6 @@ function createSlider(element, _index){
             sliderLabel.textContent = `${slider.id}: ${_colors1[slider.value]}`;
             let _t = slider.id.replace('.color', '');
             let _x = document.getElementsByClassName(_t);
-            console.log (_x);
             for(let i = 0; i < _x.length; i++){
                 _x[i].style.borderColor = _colors[slider.value];
             }
@@ -343,6 +344,41 @@ function digitechEnabled(target){
                     _y[j].setAttribute('disabled', '1');
                 else
                     _y[j].removeAttribute('disabled');
+            }
+        }
+    }
+    target.removeAttribute('disabled');
+}
+function _bypass(target){
+    let _t = target.id.replace('.bypass', '');
+    let _x = document.getElementsByClassName('slider');
+    for(var i = 0; i < _x.length; i++){
+        if(_x[i].id.startsWith(_t)){
+            if(target.value == 1)
+                _x[i].setAttribute('disabled', '1');
+            else
+                _x[i].removeAttribute('disabled');
+        }
+    }
+    target.removeAttribute('disabled');
+}
+function _enabled(target){
+    let _t = target.id.replace('.enabled', '');
+    let _x = document.getElementsByClassName('slider');
+    for(var i = 0; i < _x.length; i++){
+        if(_x[i].id.startsWith(_t)){
+            if(target.value == 0){
+                if(_t.endsWith('digitech')) {
+                    document.getElementById(`${_t}.amp_select`).setAttribute('disabled', '1');
+                    document.getElementById(`${_t}.cab_select`).setAttribute('disabled', '1');
+                }
+                _x[i].setAttribute('disabled', '1');
+            } else {
+                if(_t.endsWith('digitech')) {
+                    document.getElementById(`${_t}.amp_select`).removeAttribute('disabled');
+                    document.getElementById(`${_t}.cab_select`).removeAttribute('disabled');
+                }
+                _x[i].removeAttribute('disabled');
             }
         }
     }
