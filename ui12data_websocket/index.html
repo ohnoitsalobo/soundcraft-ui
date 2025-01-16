@@ -69,9 +69,12 @@ select{
 <script>
 const defaultIp = "192.168.137.3"; // change this to your own mixer IP or just input it with the prompt
 const MIXER_IP = prompt("Please enter the IP address:", defaultIp) || defaultIp;
-const socket = new WebSocket("https://echo.websocket.org/"); // new WebSocket("ws://"+MIXER_IP+":80");
+var socket = new WebSocket("ws://"+MIXER_IP+":80");
 const _alive_ = "3:::ALIVE"; var _keepAlive; // used to maintain the Websocket connection
 
+function openWebSocket(){
+    socket = new WebSocket("ws://"+MIXER_IP+":80");
+}
 socket.onerror = function(error) {
     if (error.message == undefined && socket.readyState == 3) {
         console.log("No connection established.");
@@ -90,13 +93,16 @@ socket.onopen = function(event) {
 socket.onclose = () => {
     clearInterval(_keepAlive); // no need to keep sending 'alive' text when disconnected
     console.log('WebSocket disconnected!');
-    document.getElementById("websocket").innerHTML = "WebSocket disconnected!";
+    document.getElementById("websocket").innerHTML = "WebSocket disconnected, reconnecting!";
+    setTimeout(function() {
+      openWebSocket();
+    }, 1000);
 };
 
 let updateEvent = new CustomEvent("update");
 socket.onmessage = function(event) {
     
-    received = "";//event.data;
+    received = event.data;
     
     receivedArray = received.split(/\r?\n/);
     receivedArray.forEach(line => {
@@ -262,9 +268,6 @@ function createSlider(element, _index){
     slider.addEventListener('input', () => {
         /* */
         var _t = "";
-        // if(slider.id.endsWith("digitech.enabled"))  digitechEnabled(slider);
-        if(slider.id.endsWith("bypass"))  _bypass(slider);
-        if(slider.id.endsWith("enabled"))  _enabled(slider);
         if(slider.id.endsWith("amp")){
             let target = document.getElementById(slider.getAttribute('target'));
             target.selectedIndex = slider.value;
@@ -310,13 +313,15 @@ function createSlider(element, _index){
         }
         /* */
         if(slider.id.endsWith("color")){
-            sliderLabel.textContent = `${slider.id}: ${_colors1[slider.value]}`;
             let _t = slider.id.replace('.color', '');
             let _x = document.getElementsByClassName(_t);
             for(let i = 0; i < _x.length; i++){
                 _x[i].style.borderColor = _colors[slider.value];
             }
+            sliderLabel.textContent = `${slider.id}: ${_colors1[slider.value]}`;
         }
+        if(slider.id.endsWith("bypass"))  _bypass(slider);
+        if(slider.id.endsWith("enabled"))  _enabled(slider);
     });
     
     // double click on slider to reset to default value
@@ -333,22 +338,6 @@ function createSlider(element, _index){
     /* */
 }
 
-function digitechEnabled(target){
-    let _t = target.id.replace('enabled', '');
-    let _x = document.getElementsByClassName('digitech');
-    for(var i = 0; i < _x.length; i++){
-        let _y = _x[i].childNodes;
-        for(var j = 0; j < _y.length; j++){
-            if(_y[j].id.startsWith(_t)){
-                if(target.value == 0)
-                    _y[j].setAttribute('disabled', '1');
-                else
-                    _y[j].removeAttribute('disabled');
-            }
-        }
-    }
-    target.removeAttribute('disabled');
-}
 function _bypass(target){
     let _t = target.id.replace('.bypass', '');
     let _x = document.getElementsByClassName('slider');
@@ -1517,7 +1506,6 @@ var _params = [
     [ "s.3.fx.2.value", 0, 0],
     [ "s.3.fx.3.value", 0, 0],
 // ----------------------------------------- FX 1 REVERB
-    [ "f.0.color", 0, 0],
     [ "f.0.mix", 0, 0],
     [ "f.0.pan", 0.5, 0.5],
     [ "f.0.mute", 0, 0],
@@ -1575,7 +1563,6 @@ var _params = [
     [ "f.0.aux.2.value", 0, 0],
     [ "f.0.aux.3.value", 0, 0],
 // ----------------------------------------- FX 2 DELAY
-    [ "f.1.color", 0, 0],
     [ "f.1.mix", 0, 0],
     [ "f.1.pan", 0.5, 0.5],
     [ "f.1.mute", 0, 0],
@@ -1633,7 +1620,6 @@ var _params = [
     [ "f.1.aux.2.value", 0, 0],
     [ "f.1.aux.3.value", 0, 0],
 // ----------------------------------------- FX 3 CHORUS
-    [ "f.2.color", 0, 0],
     [ "f.2.mix", 0, 0],
     [ "f.2.pan", 0.5, 0.5],
     [ "f.2.mute", 0, 0],
@@ -1689,7 +1675,6 @@ var _params = [
     [ "f.2.aux.2.value", 0, 0],
     [ "f.2.aux.3.value", 0, 0],
 // ----------------------------------------- FX 4 ROOM / DELAY
-    [ "f.3.color", 0, 0],
     [ "f.3.mix", 0, 0],
     [ "f.3.pan", 0.5, 0.5],
     [ "f.3.mute", 0, 0],
