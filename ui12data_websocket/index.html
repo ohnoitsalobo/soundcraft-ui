@@ -11,7 +11,7 @@ body {
     font-size: 1em;
     background: black;
     color: white;
-    white-space: pre-line;
+    /* white-space: pre-line; */
 }
 
 input[type=range] {
@@ -30,14 +30,19 @@ input[type=range]::-webkit-slider-thumb {
 select{
     padding: 3px;
     margin: 3px;
+    margin-left: 10px;
+    font-weight: bold;
 }
 
-.input{
-    border-style: none none none solid;
+.input, .line, .usb, .subgroup, .fxsend, .auxsend, .color{
+    border-style: none solid none solid;
     border-color: black;
     border-width: 10px;
 }
 
+.color {
+    border-style: solid solid none solid;
+}
 .eq {
     background-color: rgba(255, 0, 0, 0.2);
 }
@@ -53,6 +58,10 @@ select{
 .aux {
     background-color: rgba(255, 255, 0, 0.2);
 }
+
+.afs {
+    background-color: rgba(0, 0, 255, 0.2);
+}
 </style>
 </head>
 
@@ -63,7 +72,7 @@ select{
     </div>
 
     <!-- mixer websocket messages to display here -->
-    <div id="messages" style="display: none;"></div>
+    <div id="messages" style="display:;"></div>
 
     <!-- <script src="script.js" type="text/javascript"></script> -->
 <script>
@@ -94,9 +103,7 @@ socket.onclose = () => {
     clearInterval(_keepAlive); // no need to keep sending 'alive' text when disconnected
     console.log('WebSocket disconnected!');
     document.getElementById("websocket").innerHTML = "WebSocket disconnected, reconnecting!";
-    setTimeout(function() {
-      openWebSocket();
-    }, 1000);
+    setTimeout( openWebSocket, 1000);
 };
 
 let updateEvent = new CustomEvent("update");
@@ -112,6 +119,7 @@ socket.onmessage = function(event) {
         }
         else if (line.search(/SETD/) > -1 || line.search(/SETS/) > -1) {    // filter SETD and SETS messages
             line = line.replace('SETD^', ''); 
+            //if (!line.startsWith("var.currentTrackPos")) document.getElementById("messages").insertAdjacentHTML("afterbegin", line+"<br \>");
             lineArray = line.split(/\^/);
             for(var x = 0; x < _params.length; x++){
                 if(lineArray[0] == _params[x][0]){
@@ -141,51 +149,59 @@ function createElements(){
 function createSlider(element, _index){
 /* */
     // Create the slider container
-    const sliderContainer = document.createElement('div');
+    const sliderContainer = document.createElement('span');
     sliderContainer.style.display = 'flex';
-    sliderContainer.style.flexDirection = 'column';
-    sliderContainer.style.justifyContent = 'center';
-    sliderContainer.style.marginTop    = '5px';
-    sliderContainer.style.marginBottom = '5px';
-    sliderContainer.style.paddingLeft   = '10px';
-    sliderContainer.style.paddingRight  = '10px';
+    // sliderContainer.style.flexDirection = 'column';
+    sliderContainer.style.justifyContent = 'flex-end';
+    // sliderContainer.style.marginTop    = '5px';
+    // sliderContainer.style.marginBottom = '5px';
+    // sliderContainer.style.paddingLeft   = '10px';
+    // sliderContainer.style.paddingRight  = '10px';
 
     // Create the slider label
-    const sliderLabel = document.createElement('div');
+    const sliderLabel = document.createElement('span');
     sliderLabel.style.marginTop = '10px';
     
     // Create the slider input
     const slider = document.createElement('input');
     slider.type = 'range';
-    slider.style.width = '100%';
+    slider.style.width = '75%';
+    slider.style.margin = '0px 10px 0px 10px';
     slider.id = _params[_index][0];
     slider.min = '0';
     slider.max = '1';
     slider.step = '0.0001';
 
     sliderContainer.appendChild(sliderLabel);
-    sliderContainer.appendChild(document.createElement("br"));
     sliderContainer.appendChild(slider);
+    sliderContainer.appendChild(document.createElement("br"));
     
     // adjust ranges and steps for different controls
-    if(slider.id.endsWith("bypass")   ||
-       slider.id.endsWith("enabled")  ||
-       slider.id.endsWith("hiz")      ||
-       slider.id.endsWith("invert")   ||
-       slider.id.endsWith("linked")   ||
-       slider.id.endsWith("mute")     ||
-       slider.id.endsWith("softknee") ||
-       slider.id.endsWith("solo")     ||
-       slider.id.endsWith("phantom")  ||
-       slider.id.endsWith("post")     ||
+    if(slider.id.endsWith("bypass")     ||
+       slider.id.endsWith("enabled")    ||
+       slider.id.endsWith("hiz")        ||
+       slider.id.endsWith("invert")     ||
+       slider.id.endsWith("linked")     ||
+       slider.id.endsWith("mute")       ||
+       slider.id.endsWith("softknee")   ||
+       slider.id.endsWith("solo")       ||
+       slider.id.endsWith("phantom")    ||
+       slider.id.endsWith("post")       ||
+       slider.id.endsWith("logic")      ||
+       slider.id.endsWith("fmode")      ||
+       slider.id.endsWith("clearfixed") ||
+       slider.id.endsWith("clearlive")  ||
+       slider.id.endsWith("clearall")   ||
        slider.id.endsWith("postproc") ){
         slider.step = '1';
         slider.style.width = "100px";
-        sliderContainer.style.justifyContent = 'space-evenly';
+        sliderContainer.style.flexDirection = 'row-reverse';
+        sliderContainer.style.justifyContent = 'flex-end';
     }
     if(slider.id.endsWith("color")){
         slider.step = '1';
         slider.max = 11;
+        sliderContainer.classList.add("color");
     }
     if(slider.id.endsWith("hpf.freq"))
         slider.max = '0.5584';
@@ -252,13 +268,14 @@ function createSlider(element, _index){
     if(slider.id.startsWith("a."))  slider.parentElement.classList.add("auxsend", "output");
     if(slider.id.startsWith("m."))  slider.parentElement.classList.add("master", "output");
     
-    if(slider.id.search(/.digitech./) > -1) slider.parentElement.classList.add("digitech");
-    if(slider.id.search(/.gate./) > -1)     slider.parentElement.classList.add("gate");
-    if(slider.id.search(/.dyn./) > -1)      slider.parentElement.classList.add("dyn");
-    if(slider.id.search(/.deesser./) > -1)  slider.parentElement.classList.add("eq");
-    if(slider.id.search(/.eq./) > -1)       slider.parentElement.classList.add("eq");
-    if(slider.id.search(/.fx./) > -1)       slider.parentElement.classList.add("fx");
-    if(slider.id.search(/.aux./) > -1)      slider.parentElement.classList.add("aux");
+    if(slider.id.search(/digitech./) > -1) slider.parentElement.classList.add("digitech");
+    if(slider.id.search(/gate./) > -1)     slider.parentElement.classList.add("gate");
+    if(slider.id.search(/dyn./) > -1)      slider.parentElement.classList.add("dyn");
+    if(slider.id.search(/deesser./) > -1)  slider.parentElement.classList.add("eq");
+    if(slider.id.search(/eq./) > -1)       slider.parentElement.classList.add("eq");
+    if(slider.id.search(/fx./) > -1)       slider.parentElement.classList.add("fx");
+    if(slider.id.search(/aux./) > -1)      slider.parentElement.classList.add("aux");
+    if(slider.id.search(/afs./) > -1)      slider.parentElement.classList.add("afs");
     
     // Create a label to display the slider's value
     sliderLabel.textContent = `${slider.id}: ${slider.value}`;
@@ -272,13 +289,13 @@ function createSlider(element, _index){
             let target = document.getElementById(slider.getAttribute('target'));
             target.selectedIndex = slider.value;
             _t=E_AMPS2[slider.value]; 
-            sliderLabel.textContent = `${slider.id}\r\n${_t[1]}`;
+            sliderLabel.textContent = `${slider.id}`;
             socket.send(`3:::SETD^${slider.id}^${_t[0]}`);
         } else if(slider.id.endsWith("cab")){
             let target = document.getElementById(slider.getAttribute('target'));
             target.selectedIndex = slider.value;
             _t=E_CABS2[slider.value];
-            sliderLabel.textContent = `${slider.id}\r\n${_t[1]}`;
+            sliderLabel.textContent = `${slider.id}`;
             socket.send(`3:::SETD^${slider.id}^${_t[0]}`);
         } else {
             sliderLabel.textContent = `${slider.id}: ${slider.value}`;
@@ -322,6 +339,8 @@ function createSlider(element, _index){
         }
         if(slider.id.endsWith("bypass"))  _bypass(slider);
         if(slider.id.endsWith("enabled"))  _enabled(slider);
+        if(slider.id.endsWith("afs.clearall") || slider.id.endsWith("afs.clearfixed") || slider.id.endsWith("afs.clearlive"))
+            setTimeout(function() { slider.value = 0; slider.dispatchEvent(new Event('input'));}, 100);
     });
     
     // double click on slider to reset to default value
@@ -352,22 +371,31 @@ function _bypass(target){
     target.removeAttribute('disabled');
 }
 function _enabled(target){
-    let _t = target.id.replace('.enabled', '');
-    let _x = document.getElementsByClassName('slider');
-    for(var i = 0; i < _x.length; i++){
-        if(_x[i].id.startsWith(_t)){
-            if(target.value == 0){
-                if(_t.endsWith('digitech')) {
-                    document.getElementById(`${_t}.amp_select`).setAttribute('disabled', '1');
-                    document.getElementById(`${_t}.cab_select`).setAttribute('disabled', '1');
+    if(target.id.startsWith('afs.')){
+        document.getElementById('a.0.afs.enabled').value = target.value; document.getElementById('a.0.afs.enabled').dispatchEvent(new Event('input'));
+        document.getElementById('a.1.afs.enabled').value = target.value; document.getElementById('a.1.afs.enabled').dispatchEvent(new Event('input'));
+        document.getElementById('a.2.afs.enabled').value = target.value; document.getElementById('a.2.afs.enabled').dispatchEvent(new Event('input'));
+        document.getElementById('a.3.afs.enabled').value = target.value; document.getElementById('a.3.afs.enabled').dispatchEvent(new Event('input'));
+        document.getElementById(  'm.afs.enabled').value = target.value; document.getElementById(  'm.afs.enabled').dispatchEvent(new Event('input'));
+        
+    } else {
+        let _t = target.id.replace('.enabled', '');
+        let _x = document.getElementsByClassName('slider');
+        for(var i = 0; i < _x.length; i++){
+            if(_x[i].id.startsWith(_t)){
+                if(target.value == 0){
+                    if(_t.endsWith('digitech')) {
+                        document.getElementById(`${_t}.amp_select`).setAttribute('disabled', '1');
+                        document.getElementById(`${_t}.cab_select`).setAttribute('disabled', '1');
+                    }
+                    _x[i].setAttribute('disabled', '1');
+                } else {
+                    if(_t.endsWith('digitech')) {
+                        document.getElementById(`${_t}.amp_select`).removeAttribute('disabled');
+                        document.getElementById(`${_t}.cab_select`).removeAttribute('disabled');
+                    }
+                    _x[i].removeAttribute('disabled');
                 }
-                _x[i].setAttribute('disabled', '1');
-            } else {
-                if(_t.endsWith('digitech')) {
-                    document.getElementById(`${_t}.amp_select`).removeAttribute('disabled');
-                    document.getElementById(`${_t}.cab_select`).removeAttribute('disabled');
-                }
-                _x[i].removeAttribute('disabled');
             }
         }
     }
@@ -465,7 +493,7 @@ var _colors = [ "#000000", "#111111", "#8B0000", "#FF0000",
               ];
 var _colors1 = [ "Off", "Black", "Burgundy", "Red",
                  "Gold", "Yellow", "Green", "Blue",
-                 "Purple", "Gray", "White", "Pink" 
+                 "Purple", "Gray", "White", "Magenta" 
                ];
 /* */
 var _params = [
@@ -1506,6 +1534,7 @@ var _params = [
     [ "s.3.fx.2.value", 0, 0],
     [ "s.3.fx.3.value", 0, 0],
 // ----------------------------------------- FX 1 REVERB
+    [ "f.0.color", 0, 0],
     [ "f.0.mix", 0, 0],
     [ "f.0.pan", 0.5, 0.5],
     [ "f.0.mute", 0, 0],
@@ -1563,6 +1592,7 @@ var _params = [
     [ "f.0.aux.2.value", 0, 0],
     [ "f.0.aux.3.value", 0, 0],
 // ----------------------------------------- FX 2 DELAY
+    [ "f.1.color", 0, 0],
     [ "f.1.mix", 0, 0],
     [ "f.1.pan", 0.5, 0.5],
     [ "f.1.mute", 0, 0],
@@ -1620,6 +1650,7 @@ var _params = [
     [ "f.1.aux.2.value", 0, 0],
     [ "f.1.aux.3.value", 0, 0],
 // ----------------------------------------- FX 3 CHORUS
+    [ "f.2.color", 0, 0],
     [ "f.2.mix", 0, 0],
     [ "f.2.pan", 0.5, 0.5],
     [ "f.2.mute", 0, 0],
@@ -1675,6 +1706,7 @@ var _params = [
     [ "f.2.aux.2.value", 0, 0],
     [ "f.2.aux.3.value", 0, 0],
 // ----------------------------------------- FX 4 ROOM / DELAY
+    [ "f.3.color", 0, 0],
     [ "f.3.mix", 0, 0],
     [ "f.3.pan", 0.5, 0.5],
     [ "f.3.mute", 0, 0],
@@ -1732,17 +1764,7 @@ var _params = [
     [ "f.3.aux.2.value", 0, 0],
     [ "f.3.aux.3.value", 0, 0],
 // ----------------------------------------- AUX 1
-    //  [ "a.0.afs.clearall", 0, 0],
-    //  [ "a.0.afs.clearfixed", 0, 0],
-    //  [ "a.0.afs.clearlive", 0, 0],
-    //  [ "a.0.afs.cmode", 0, 0],
-    //  [ "a.0.afs.enabled", 0, 0],
-    //  [ "a.0.afs.fmode", 0, 0],
-    //  [ "a.0.afs.livelift", 0, 0],
-    //  [ "a.0.afs.logic", 1, 1],
-    //  [ "a.0.afs.numfixed", 6, 6],
-    //  [ "a.0.afs.numtotal", 12, 12],
-    //  [ "a.0.afs.sensitivity", 0.5, 0.5],
+    [ "a.0.color", 0, 0],
     [ "a.0.mix", 0.7647058824, 0.7647058824],
     [ "a.0.pan", 0.5, 0.5],
     [ "a.0.mute", 0, 0],
@@ -1798,18 +1820,19 @@ var _params = [
     //  [ "a.0.mgmask", 0, 0],
     //  [ "a.0.safe", 0, 0],
     //  [ "a.0.stereoIndex", -1, -1],
+    [ "a.0.afs.enabled", 0, 0],
+    [ "a.0.afs.sensitivity", 0.5, 0.5],
+    [ "a.0.afs.fmode", 0, 0],
+    [ "a.0.afs.logic", 1, 1],
+    [ "a.0.afs.clearall", 0, 0],
+    [ "a.0.afs.clearfixed", 0, 0],
+    [ "a.0.afs.clearlive", 0, 0],
+    //  [ "a.0.afs.cmode", 0, 0],
+    //  [ "a.0.afs.livelift", 0, 0],
+    //  [ "a.0.afs.numfixed", 6, 6],
+    //  [ "a.0.afs.numtotal", 12, 12],
 // ----------------------------------------- AUX 2
-    //  [ "a.1.afs.clearall", 0, 0],
-    //  [ "a.1.afs.clearfixed", 0, 0],
-    //  [ "a.1.afs.clearlive", 0, 0],
-    //  [ "a.1.afs.cmode", 0, 0],
-    //  [ "a.1.afs.enabled", 0, 0],
-    //  [ "a.1.afs.fmode", 0, 0],
-    //  [ "a.1.afs.livelift", 0, 0],
-    //  [ "a.1.afs.logic", 1, 1],
-    //  [ "a.1.afs.numfixed", 6, 6],
-    //  [ "a.1.afs.numtotal", 12, 12],
-    //  [ "a.1.afs.sensitivity", 0.5, 0.5],
+    [ "a.1.color", 0, 0],
     [ "a.1.mix", 0.7647058824, 0.7647058824],
     [ "a.1.pan", 0.5, 0.5],
     [ "a.1.mute", 0, 0],
@@ -1865,18 +1888,19 @@ var _params = [
     //  [ "a.1.mgmask", 0, 0],
     //  [ "a.1.safe", 0, 0],
     //  [ "a.1.stereoIndex", -1, -1],
+    [ "a.1.afs.enabled", 0, 0],
+    [ "a.1.afs.sensitivity", 0.5, 0.5],
+    [ "a.1.afs.fmode", 0, 0],
+    [ "a.1.afs.logic", 1, 1],
+    [ "a.1.afs.clearall", 0, 0],
+    [ "a.1.afs.clearfixed", 0, 0],
+    [ "a.1.afs.clearlive", 0, 0],
+    //  [ "a.1.afs.cmode", 0, 0],
+    //  [ "a.1.afs.livelift", 0, 0],
+    //  [ "a.1.afs.numfixed", 6, 6],
+    //  [ "a.1.afs.numtotal", 12, 12],
 // ----------------------------------------- AUX 3
-    //  [ "a.2.afs.clearall", 0, 0],
-    //  [ "a.2.afs.clearfixed", 0, 0],
-    //  [ "a.2.afs.clearlive", 0, 0],
-    //  [ "a.2.afs.cmode", 0, 0],
-    //  [ "a.2.afs.enabled", 0, 0],
-    //  [ "a.2.afs.fmode", 0, 0],
-    //  [ "a.2.afs.livelift", 0, 0],
-    //  [ "a.2.afs.logic", 1, 1],
-    //  [ "a.2.afs.numfixed", 6, 6],
-    //  [ "a.2.afs.numtotal", 12, 12],
-    //  [ "a.2.afs.sensitivity", 0.5, 0.5],
+    [ "a.2.color", 0, 0],
     [ "a.2.mix", 0.7647058824, 0.7647058824],
     [ "a.2.pan", 0.5, 0.5],
     [ "a.2.mute", 0, 0],
@@ -1932,18 +1956,19 @@ var _params = [
     //  [ "a.2.mgmask", 0, 0],
     //  [ "a.2.safe", 0, 0],
     //  [ "a.2.stereoIndex", -1, -1],
+    [ "a.2.afs.enabled", 0, 0],
+    [ "a.2.afs.sensitivity", 0.5, 0.5],
+    [ "a.2.afs.fmode", 0, 0],
+    [ "a.2.afs.logic", 1, 1],
+    [ "a.2.afs.clearall", 0, 0],
+    [ "a.2.afs.clearfixed", 0, 0],
+    [ "a.2.afs.clearlive", 0, 0],
+    //  [ "a.2.afs.cmode", 0, 0],
+    //  [ "a.2.afs.livelift", 0, 0],
+    //  [ "a.2.afs.numfixed", 6, 6],
+    //  [ "a.2.afs.numtotal", 12, 12],
 // ----------------------------------------- AUX 4
-    //  [ "a.3.afs.clearall", 0, 0],
-    //  [ "a.3.afs.clearfixed", 0, 0],
-    //  [ "a.3.afs.clearlive", 0, 0],
-    //  [ "a.3.afs.cmode", 0, 0],
-    //  [ "a.3.afs.enabled", 0, 0],
-    //  [ "a.3.afs.fmode", 0, 0],
-    //  [ "a.3.afs.livelift", 0, 0],
-    //  [ "a.3.afs.logic", 1, 1],
-    //  [ "a.3.afs.numfixed", 6, 6],
-    //  [ "a.3.afs.numtotal", 12, 12],
-    //  [ "a.3.afs.sensitivity", 0.5, 0.5],
+    [ "a.3.color", 0, 0],
     [ "a.3.mix", 0.7647058824, 0.7647058824],
     [ "a.3.pan", 0.5, 0.5],
     [ "a.3.mute", 0, 0],
@@ -1999,19 +2024,18 @@ var _params = [
     //  [ "a.3.mgmask", 0, 0],
     //  [ "a.3.safe", 0, 0],
     //  [ "a.3.stereoIndex", -1, -1],
+    [ "a.3.afs.enabled", 0, 0],
+    [ "a.3.afs.sensitivity", 0.5, 0.5],
+    [ "a.3.afs.fmode", 0, 0],
+    [ "a.3.afs.logic", 1, 1],
+    [ "a.3.afs.clearall", 0, 0],
+    [ "a.3.afs.clearfixed", 0, 0],
+    [ "a.3.afs.clearlive", 0, 0],
+    //  [ "a.3.afs.cmode", 0, 0],
+    //  [ "a.3.afs.livelift", 0, 0],
+    //  [ "a.3.afs.numfixed", 6, 6],
+    //  [ "a.3.afs.numtotal", 12, 12],
 // ----------------------------------------- MASTER
-    //  [ "m.afs.clearall", 0, 0],
-    //  [ "m.afs.clearfixed", 0, 0],
-    //  [ "m.afs.clearlive", 0, 0],
-    //  [ "m.afs.cmode", 0, 0],
-    //  [ "m.afs.enabled", 1, 1],
-    //  [ "m.afs.fmode", 1, 1],
-    //  [ "m.afs.livelift", 0, 0],
-    //  [ "m.afs.logic", 1, 1],
-    //  [ "m.afs.numfixed", 6, 6],
-    //  [ "m.afs.numtotal", 12, 12],
-    //  [ "m.afs.sensitivity", 0.6994553205, 0.6994553205],
-    //  [ "m.dim", 0, 0],
     [ "m.mix", 0.7618130227, 0.7618130227],
     [ "m.pan", 0.5, 0.5],
     [ "m.mute", 0, 0],
@@ -2101,6 +2125,20 @@ var _params = [
     [ "m.dyn.r.hold", 0.158, 0.158],
     [ "m.dyn.r.release", 0.2490234375, 0.2490234375],
     [ "m.dyn.r.outgain", 0.3334960938, 0.3334960938],
+    [ "m.afs.enabled", 0, 0],
+    [ "m.afs.sensitivity", 0.5, 0.5],
+    [ "m.afs.fmode", 0, 0],
+    [ "m.afs.logic", 1, 1],
+    [ "m.afs.clearall", 0, 0],
+    [ "m.afs.clearfixed", 0, 0],
+    [ "m.afs.clearlive", 0, 0],
+    //  [ "m.afs.cmode", 0, 0],
+    //  [ "m.afs.livelift", 0, 0],
+    //  [ "m.afs.numfixed", 6, 6],
+    //  [ "m.afs.numtotal", 12, 12],
+// ----------------------------------------- AFS2
+    [ "afs.enabled", 1, 1],
+
     [ "", 0, 0 ]
 ];
 </script>
