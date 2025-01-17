@@ -34,6 +34,10 @@ select{
     font-weight: bold;
 }
 
+button{
+    font-family: Consolas, monospace;
+}
+
 .input, .line, .usb, .subgroup, .fxsend, .auxsend, .color{
     border-style: none solid none solid;
     border-color: black;
@@ -66,7 +70,7 @@ select{
 </head>
 
 <body onload="createElements();">
-    <div id="websocket" style="display:;"></div>
+    <div id="websocket" style="position: fixed; top: 0px; background-color: black"></div>
     <div id="content">
         
     </div>
@@ -140,8 +144,44 @@ socket.onmessage = function(event) {
 function createElements(){
     _doc = document.getElementById("content");
     
+    for(var x = 0; x < _inout.length; x++){
+        let t = document.createElement('div');
+        t.id = _inout[x];
+        t.style.height = '90vh';
+        t.style.overflow = 'auto';
+        t.style.marginTop = '50px';
+        _doc.appendChild(t);
+        let t1 = document.createElement('div');
+        let t2 = document.createElement('div');
+        let t3 = document.createElement('div');
+        let t4 = document.createElement('div');
+        t1.id = `${t.id}.eq`;
+        t2.id = `${t.id}.dyn`;
+        t3.id = `${t.id}.fx`;
+        t4.id = `${t.id}.aux`;
+        t.appendChild(t1);
+        t.appendChild(t2);
+        t.appendChild(t3);
+        t.appendChild(t4);
+        if(t.id.startsWith('a.') || t.id.startsWith('m')){
+            let t5= document.createElement('div');
+            t5.id = `${t.id}.afs`;
+            t.appendChild(t5);
+        }
+        let _b = document.createElement('button');
+        _b.id = `${t.id}_button`;
+        _b.innerText = `${t.id}`;
+        _b.style.position = 'fixed';
+        _b.style.bottom = '20px';
+        _b.style.left = `${x*35}px`;
+        let _a = document.createElement('a');
+        _a.href = `#${t.id}`;
+        _a.appendChild(_b);
+        document.body.appendChild(_a);
+    }
+    
     for(var x = 0; x < _params.length-1; x++){
-         createSlider(_doc, x);
+        createSlider(_doc, x);
     }
 
 }
@@ -353,7 +393,23 @@ function createSlider(element, _index){
         
     });
     
-    element.appendChild(sliderContainer);
+    // element.appendChild(sliderContainer);
+    for(var x = 0; x < _inout.length; x++){
+        if(sliderContainer.classList.contains(_inout[x])){
+            if(slider.id.startsWith(`${_inout[x]}.eq`) || slider.id.startsWith(`${_inout[x]}.deesser`)){
+                document.getElementById(`${_inout[x]}.eq`).appendChild(sliderContainer);
+            } else if(slider.id.startsWith(`${_inout[x]}.dyn`) || slider.id.startsWith(`${_inout[x]}.gate`)){
+                document.getElementById(`${_inout[x]}.dyn`).appendChild(sliderContainer);
+            } else if(slider.id.startsWith(`${_inout[x]}.fx`)){
+                document.getElementById(`${_inout[x]}.fx`).appendChild(sliderContainer);
+            } else if(slider.id.startsWith(`${_inout[x]}.aux`)){
+                document.getElementById(`${_inout[x]}.aux`).appendChild(sliderContainer);
+            } else if(slider.id.startsWith(`${_inout[x]}.afs`)){
+                document.getElementById(`${_inout[x]}.afs`).appendChild(sliderContainer);
+            } else 
+                document.getElementById(_inout[x]).insertBefore(sliderContainer, document.getElementById(`${_inout[x]}.eq`));
+        }
+    }
     /* */
 }
 
