@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="scroll-behavior: smooth;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -163,6 +163,7 @@ function createElements(){
         t.appendChild(t2);
         t.appendChild(t3);
         t.appendChild(t4);
+        t.insertAdjacentHTML("afterbegin", `${t.id}<br \>`);
         if(t.id.startsWith('a.') || t.id.startsWith('m')){
             let t5= document.createElement('div');
             t5.id = `${t.id}.afs`;
