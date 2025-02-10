@@ -80,6 +80,10 @@ button{
 
     <!-- <script src="script.js" type="text/javascript"></script> -->
 <script>
+
+// NOTE this page is currently set up ONLY for Ui12 parameters
+// Ui16/24 parameters will require changes
+
 const defaultIp = "192.168.137.3"; // change this to your own mixer IP or just input it with the prompt
 const MIXER_IP = prompt("Please enter the IP address:", defaultIp) || defaultIp;
 var socket = new WebSocket("ws://"+MIXER_IP+":80");
@@ -192,12 +196,7 @@ function createSlider(element, _index){
     // Create the slider container
     const sliderContainer = document.createElement('span');
     sliderContainer.style.display = 'flex';
-    // sliderContainer.style.flexDirection = 'column';
     sliderContainer.style.justifyContent = 'flex-end';
-    // sliderContainer.style.marginTop    = '5px';
-    // sliderContainer.style.marginBottom = '5px';
-    // sliderContainer.style.paddingLeft   = '10px';
-    // sliderContainer.style.paddingRight  = '10px';
 
     // Create the slider label
     const sliderLabel = document.createElement('span');
@@ -330,17 +329,17 @@ function createSlider(element, _index){
             let target = document.getElementById(slider.getAttribute('target'));
             target.selectedIndex = slider.value;
             _t=E_AMPS2[slider.value]; 
-            sliderLabel.textContent = `${slider.id}`;
             socket.send(`3:::SETD^${slider.id}^${_t[0]}`);
+            sliderLabel.textContent = "Amplifier: ";
         } else if(slider.id.endsWith("cab")){
             let target = document.getElementById(slider.getAttribute('target'));
             target.selectedIndex = slider.value;
             _t=E_CABS2[slider.value];
-            sliderLabel.textContent = `${slider.id}`;
             socket.send(`3:::SETD^${slider.id}^${_t[0]}`);
+            sliderLabel.textContent = "Cabinet: ";
         } else {
-            sliderLabel.textContent = `${slider.id}: ${slider.value}`;
             socket.send(`3:::SETD^${slider.id}^${slider.value}`);
+            sliderLabel.textContent = `${slider.id}: ${slider.value}`;
         }
         
         // PHANTOM and HI-Z should NOT be on at the same time
@@ -553,6 +552,9 @@ var _colors1 = [ "Off", "Black", "Burgundy", "Red",
                  "Purple", "Gray", "White", "Magenta" 
                ];
 /* */
+// [param name, current value, default value]
+// this is currently Ui12 ONLY. Ui16 / Ui24 parameters will need to be manually added, or
+// parsed from the mixer itself
 var _params = [
 // ----------------------------------------- INPUT 1
     [ "i.0.color", 0, 0],
