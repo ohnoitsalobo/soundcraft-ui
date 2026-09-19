@@ -12,6 +12,7 @@ body {
     background: black;
     color: white;
     /* white-space: pre-line; */
+    padding-left: 1em;
 }
 
 input[type=range] {
@@ -38,6 +39,11 @@ button{
     font-family: Consolas, monospace;
 }
 
+.inputDiv{
+    margin-top: 3em;
+    margin-right: 1em;
+}
+
 .input, .line, .usb, .subgroup, .fxsend, .auxsend, .color{
     border-style: none solid none solid;
     border-color: black;
@@ -47,24 +53,34 @@ button{
 .color {
     border-style: solid solid none solid;
 }
+.digitech {
+    background-color: rgba(255, 255, 255, 0.1);
+}
 .eq {
     background-color: rgba(255, 0, 0, 0.2);
 }
-
-.dyn, .gate{
+.deesser {
+    background-color: rgba(255, 0, 0, 0.3);
+}
+.gate {
     background-color: rgba(0, 255, 0, 0.2);
 }
-
+.dyn {
+    background-color: rgba(0, 255, 0, 0.3);
+}
 .fx {
     background-color: rgba(255, 0, 255, 0.2);
 }
-
 .aux {
     background-color: rgba(255, 255, 0, 0.2);
 }
 
 .afs {
     background-color: rgba(0, 0, 255, 0.2);
+}
+
+#m {
+    margin-bottom: 3em;
 }
 </style>
 </head>
@@ -84,8 +100,9 @@ button{
 // NOTE this page is currently set up ONLY for Ui12 parameters
 // Ui16/24 parameters will require changes
 
-const defaultIp = "192.168.137.3"; // change this to your own mixer IP or just input it with the prompt
-const MIXER_IP = prompt("Please enter the IP address:", defaultIp) || defaultIp;
+const MIXER_IP = "localhost"; // change this to your own mixer IP or just input it with the prompt
+//const defaultIp = "192.168.137.3"; // change this to your own mixer IP or just input it with the prompt
+//const MIXER_IP = prompt("Please enter the IP address:", defaultIp) || defaultIp;
 var socket = new WebSocket("ws://"+MIXER_IP+":80");
 const _alive_ = "3:::ALIVE"; var _keepAlive; // used to maintain the Websocket connection
 
@@ -151,6 +168,7 @@ function createElements(){
     for(var x = 0; x < _inout.length; x++){
         let t = document.createElement('div');
         t.id = _inout[x];
+        t.classList.add("inputDiv");
         t.style.height = '90vh';
         t.style.overflow = 'auto';
         t.style.marginTop = '50px';
@@ -191,6 +209,7 @@ function createElements(){
 
 }
 
+let preventRecursion = 1;
 function createSlider(element, _index){
 /* */
     // Create the slider container
@@ -210,12 +229,43 @@ function createSlider(element, _index){
     slider.id = _params[_index][0];
     slider.min = '0';
     slider.max = '1';
-    slider.step = '0.0001';
+    slider.step = '0.001';
 
     sliderContainer.appendChild(sliderLabel);
     sliderContainer.appendChild(slider);
     sliderContainer.appendChild(document.createElement("br"));
     
+    // add classes for later styling
+    for(let i = 0; i < _inout.length; i++){
+        if(slider.id.startsWith(_inout[i]))
+            sliderContainer.classList.add(_inout[i]);
+    }
+    if(slider.id.startsWith("i."))  slider.parentElement.classList.add("input");
+    if(slider.id.startsWith("l."))  slider.parentElement.classList.add("line", "input");
+    if(slider.id.startsWith("p."))  slider.parentElement.classList.add("usb");
+    if(slider.id.startsWith("s."))  slider.parentElement.classList.add("subgroup");
+    if(slider.id.startsWith("f."))  slider.parentElement.classList.add("fxsend");
+    if(slider.id.startsWith("a."))  slider.parentElement.classList.add("auxsend", "output");
+    if(slider.id.startsWith("m."))  slider.parentElement.classList.add("master", "output");
+    
+    if(slider.id.search(/digitech./) > -1) slider.parentElement.classList.add("digitech");
+    if(slider.id.search(/gate./) > -1)     slider.parentElement.classList.add("gate");
+    if(slider.id.search(/dyn./) > -1)      slider.parentElement.classList.add("dyn");
+    if(slider.id.search(/deesser./) > -1)  slider.parentElement.classList.add("deesser");
+    if(slider.id.search(/eq./) > -1)       slider.parentElement.classList.add("eq");
+    if(slider.id.search(/fx./) > -1)       slider.parentElement.classList.add("fx");
+    if(slider.id.search(/aux./) > -1)      slider.parentElement.classList.add("aux");
+    if(slider.id.search(/afs./) > -1)      slider.parentElement.classList.add("afs");
+    if(slider.id.search(/.l./) > -1)       slider.parentElement.classList.add("l");
+    if(slider.id.search(/.r./) > -1)       slider.parentElement.classList.add("r");
+    
+    if(slider.id.endsWith("stereoIndex")){
+        slider.setAttribute('disabled', '1');
+        slider.step = '1';
+        slider.max = '2';
+        slider.min = '-1';
+    }
+   
     // adjust ranges and steps for different controls
     if(slider.id.endsWith("bypass")     ||
        slider.id.endsWith("enabled")    ||
@@ -234,7 +284,25 @@ function createSlider(element, _index){
        slider.id.endsWith("clearall")   ||
        slider.id.endsWith("postproc") ){
         slider.step = '1';
-        slider.style.width = "100px";
+        slider.style.width = "10%";
+        sliderContainer.style.flexDirection = 'row-reverse';
+        sliderContainer.style.justifyContent = 'flex-end';
+    }
+    if(slider.parentElement.classList.contains("digitech")){
+        if(!slider.id.endsWith("enabled")) slider.style.width = "30%";
+        sliderContainer.style.flexDirection = '';
+    }
+    if(slider.parentElement.classList.contains("digitech") ||
+       slider.parentElement.classList.contains("deesser") ||
+       slider.parentElement.classList.contains("afs")     ){
+        if(!slider.id.endsWith("enabled")) slider.setAttribute('disabled', '1');
+    }
+    
+    if(slider.id.endsWith("fxtype")){
+        slider.step = '2';
+        slider.min = 1;
+        slider.max = 3;
+        slider.style.width = "10%";
         sliderContainer.style.flexDirection = 'row-reverse';
         sliderContainer.style.justifyContent = 'flex-end';
     }
@@ -245,6 +313,7 @@ function createSlider(element, _index){
     }
     if(slider.id.endsWith("hpf.freq"))
         slider.max = '0.5584';
+
     if(slider.id.endsWith("amp")){
         slider.step = '1';
         slider.max = E_AMPS2.length-1;
@@ -252,6 +321,7 @@ function createSlider(element, _index){
         slider.setAttribute('target', `${slider.id}_select`);
         const sel = document.createElement('select');
         sel.setAttribute('target', slider.id);
+        sel.setAttribute('disabled', 1);
         sliderContainer.appendChild(sel);
         sel.id = `${slider.id}_select`;
         for(var i = 0; i < E_AMPS2.length; i++){
@@ -273,6 +343,7 @@ function createSlider(element, _index){
         slider.setAttribute('target', `${slider.id}_select`);
         const sel = document.createElement('select');
         sel.setAttribute('target', slider.id);
+        sel.setAttribute('disabled', 1);
         sliderContainer.appendChild(sel);
         sel.id = `${slider.id}_select`;
         for(var i = 0; i < E_CABS2.length; i++){
@@ -292,31 +363,15 @@ function createSlider(element, _index){
         slider.min = '30';
         slider.max = '300';
     }
+    if(slider.id.startsWith("m.eq.peak.r")){
+        slider.setAttribute('disabled', '1');
+    }
+    if(slider.id.startsWith("m.dyn.r")){
+        slider.setAttribute('disabled', '1');
+    }
     slider.value = _params[_index][1];
     slider.classList.add("slider");
-    
-    // add classes for later styling
-    for(let i = 0; i < _inout.length; i++){
-        if(slider.id.startsWith(_inout[i]))
-            sliderContainer.classList.add(_inout[i]);
-    }
-    if(slider.id.startsWith("i."))  slider.parentElement.classList.add("input");
-    if(slider.id.startsWith("l."))  slider.parentElement.classList.add("line", "input");
-    if(slider.id.startsWith("p."))  slider.parentElement.classList.add("usb");
-    if(slider.id.startsWith("s."))  slider.parentElement.classList.add("subgroup");
-    if(slider.id.startsWith("f."))  slider.parentElement.classList.add("fxsend");
-    if(slider.id.startsWith("a."))  slider.parentElement.classList.add("auxsend", "output");
-    if(slider.id.startsWith("m."))  slider.parentElement.classList.add("master", "output");
-    
-    if(slider.id.search(/digitech./) > -1) slider.parentElement.classList.add("digitech");
-    if(slider.id.search(/gate./) > -1)     slider.parentElement.classList.add("gate");
-    if(slider.id.search(/dyn./) > -1)      slider.parentElement.classList.add("dyn");
-    if(slider.id.search(/deesser./) > -1)  slider.parentElement.classList.add("eq");
-    if(slider.id.search(/eq./) > -1)       slider.parentElement.classList.add("eq");
-    if(slider.id.search(/fx./) > -1)       slider.parentElement.classList.add("fx");
-    if(slider.id.search(/aux./) > -1)      slider.parentElement.classList.add("aux");
-    if(slider.id.search(/afs./) > -1)      slider.parentElement.classList.add("afs");
-    
+
     // Create a label to display the slider's value
     sliderLabel.textContent = `${slider.id}: ${slider.value}`;
     sliderLabel.id =`${slider.id}Label`;
@@ -340,6 +395,11 @@ function createSlider(element, _index){
         } else {
             socket.send(`3:::SETD^${slider.id}^${slider.value}`);
             sliderLabel.textContent = `${slider.id}: ${slider.value}`;
+            for(let i = 0; i < _inout.length; i++){
+                if(sliderLabel.id.startsWith(_inout[i])){
+                    sliderLabel.textContent = slider.id.replace(_inout[i], _inout_label[i]) + `: ${slider.value}`;
+                }
+            }
         }
         
         // PHANTOM and HI-Z should NOT be on at the same time
@@ -381,12 +441,124 @@ function createSlider(element, _index){
         if(slider.id.endsWith("enabled"))  _enabled(slider);
         if(slider.id.endsWith("afs.clearall") || slider.id.endsWith("afs.clearfixed") || slider.id.endsWith("afs.clearlive"))
             setTimeout(function() { slider.value = 0; slider.dispatchEvent(new Event('input'));}, 100);
+        
+        // unlock AFS if mode changes
+        if(slider.id.endsWith("fmode")){
+            let _t = document.getElementById(slider.id.replace('fmode', 'logic'));
+            if(_t.value == 0){
+                _t.stepUp(1);
+                _t.dispatchEvent(new Event('input'));
+            }
+        }
+        if(slider.id.endsWith("fxtype")){
+            var par1 = document.getElementById("f.3.par1");
+            var par2 = document.getElementById("f.3.par2");
+            var par3 = document.getElementById("f.3.par3");
+            if(slider.value == 1){ par1.value = 0; par2.value = 0.5; par3.value = 0.3; }
+            if(slider.value == 3){ par1.value = 0.5; par2.value = 0.4; par3.value = 0.5; }
+            par1.dispatchEvent(new Event('input'));
+            par2.dispatchEvent(new Event('input'));
+            par3.dispatchEvent(new Event('input'));
+        }
+        
+        // disable and sync main right EQ if linked
+        if(slider.id.startsWith("m.eq.linked")){
+            let _t = document.getElementsByTagName("input");
+            for(let i = 0; i < _t.length; i++){
+                if(_t[i].id.search(/m.eq.peak.r./) > -1){
+                    if(slider.value > 0){
+                        _t[i].setAttribute('disabled', '1');
+                        let _x = document.getElementById(_t[i].id.replace('.r.', '.l.'));
+                        _t[i].value = _x.value;
+                        _t[i].dispatchEvent(new Event('input'));
+                    } else {
+                        _t[i].removeAttribute('disabled');
+                    }
+                }
+            }
+        }
+        if(slider.id.startsWith("m.eq.peak.l.")){
+            if(document.getElementById("m.eq.linked").value > 0){
+                let _t = document.getElementById(slider.id.replace(".l.",".r."));
+                _t.value = slider.value; _t.dispatchEvent(new Event('input'));
+            }
+        }
+        // disable and sync main right dynamics if linked
+        if(slider.id.startsWith("m.dyn.linked")){
+            let _t = document.getElementsByTagName("input");
+            for(let i = 0; i < _t.length; i++){
+                if(_t[i].id.search(/m.dyn.r/) > -1){
+                    if(slider.value > 0){
+                        _t[i].setAttribute('disabled', '1');
+                        let _x = document.getElementById(_t[i].id.replace('.r.', '.l.'));
+                        _t[i].value = _x.value;
+                        _t[i].dispatchEvent(new Event('input'));
+                    } else {
+                        _t[i].removeAttribute('disabled');
+                    }
+                }
+            }
+        }
+        if(slider.id.startsWith("m.dyn.l.")){
+            if(document.getElementById("m.dyn.linked").value > 0){
+                let _t = document.getElementById(slider.id.replace(".l.",".r."));
+                _t.value = slider.value; _t.dispatchEvent(new Event('input'));
+            }
+        }
     });
     
-    // double click on slider to reset to default value
+   
+    // double click on slider or label to reset to default value
     slider.addEventListener('dblclick', () => {
         slider.value = _params[_index][2];
         slider.dispatchEvent(new Event('input'));
+    });
+    sliderLabel.addEventListener('dblclick', () => {
+        slider.value = _params[_index][2];
+        slider.dispatchEvent(new Event('input'));
+    });
+    
+    // move with scroll wheel
+    sliderLabel.addEventListener("wheel", event => {
+        if(slider.disabled != true){
+            event.preventDefault(); // prevent page scroll
+            // console.log(event);
+            if(slider.id.endsWith("bypass")     ||
+               slider.id.endsWith("enabled")    ||
+               slider.id.endsWith("hiz")        ||
+               slider.id.endsWith("invert")     ||
+               slider.id.endsWith("linked")     ||
+               slider.id.endsWith("mute")       ||
+               slider.id.endsWith("softknee")   ||
+               slider.id.endsWith("solo")       ||
+               slider.id.endsWith("phantom")    ||
+               slider.id.endsWith("post")       ||
+               slider.id.endsWith("logic")      ||
+               slider.id.endsWith("fmode")      ||
+               slider.id.endsWith("clearfixed") ||
+               slider.id.endsWith("clearlive")  ||
+               slider.id.endsWith("clearall")   ||
+               slider.id.endsWith("postproc")   ||
+               slider.id.endsWith("color")      ||
+               slider.id.endsWith("amp")        ||
+               slider.id.endsWith("cab")        ||
+               slider.id.endsWith("bpm") ){
+                if(event.deltaY > 0){ // down wheel
+                    slider.stepUp(1);
+                }
+                if(event.deltaY < 0){ // up wheel
+                    slider.stepDown(1);
+                }
+            } else {
+                if(event.deltaY > 0){ // down wheel
+                    slider.stepUp(20);
+                }
+                if(event.deltaY < 0){ // up wheel
+                    slider.stepDown(20);
+                }
+            }
+            slider.dispatchEvent(new Event('input'));
+        }
     });
     
     slider.addEventListener("update", (e) => {
@@ -400,7 +572,7 @@ function createSlider(element, _index){
                 document.getElementById(`${_inout[x]}.eq`).appendChild(sliderContainer);
             } else if(slider.id.startsWith(`${_inout[x]}.dyn`) || slider.id.startsWith(`${_inout[x]}.gate`)){
                 document.getElementById(`${_inout[x]}.dyn`).appendChild(sliderContainer);
-            } else if(slider.id.startsWith(`${_inout[x]}.fx`)){
+            } else if(slider.id.startsWith(`${_inout[x]}.fx.`)){
                 document.getElementById(`${_inout[x]}.fx`).appendChild(sliderContainer);
             } else if(slider.id.startsWith(`${_inout[x]}.aux`)){
                 document.getElementById(`${_inout[x]}.aux`).appendChild(sliderContainer);
@@ -416,12 +588,26 @@ function createSlider(element, _index){
 function _bypass(target){
     let _t = target.id.replace('.bypass', '');
     let _x = document.getElementsByClassName('slider');
+    console.log(_t);
     for(var i = 0; i < _x.length; i++){
         if(_x[i].id.startsWith(_t)){
             if(target.value == 1)
                 _x[i].setAttribute('disabled', '1');
             else
                 _x[i].removeAttribute('disabled');
+                
+            if(_t == "m.eq"){
+                if(document.getElementById("m.eq.linked").value > 0){
+                    if(_x[i].id.startsWith("m.eq.peak.r"))
+                        _x[i].setAttribute('disabled', '1');
+                }
+            }
+            if(_t == "m.dyn"){
+                if(document.getElementById("m.dyn.linked").value > 0){
+                    if(_x[i].id.startsWith("m.dyn.r"))
+                        _x[i].setAttribute('disabled', '1');
+                }
+            }
         }
     }
     target.removeAttribute('disabled');
@@ -542,6 +728,13 @@ var _inout = [ "i.0", "i.1", "i.2", "i.3",     // inputs
                "f.0", "f.1", "f.2", "f.3",     // FX
                "a.0", "a.1", "a.2", "a.3", "m" // aux, master
               ];
+var _inout_label = [ "Input 1",    "Input 2",    "Input 3",    "Input 4",        // inputs
+                     "Input 5",    "Input 6",    "Input 7",    "Input 8",        // inputs
+                     "Line-in L",  "Line-in R",  "Player L",   "Player R",       // line in, USB
+                     "Subgroup 1", "Subgroup 2", "Subgroup 3", "Subgroup 4",     // subgroups
+                     "FX 1",       "FX 2",       "FX 3",       "FX 4",           // FX
+                     "Aux 1",      "Aux 2",      "Aux 3",      "Aux 4", "Master" // aux, master
+                    ];
 
 var _colors = [ "#000000", "#111111", "#8B0000", "#FF0000",
                 "#FFA500", "#FFFF00", "#56DE43", "#0091C2",
@@ -637,6 +830,7 @@ var _params = [
     [ "i.0.aux.1.value", 0, 0],
     [ "i.0.aux.2.value", 0, 0],
     [ "i.0.aux.3.value", 0, 0],
+    [ "i.0.stereoIndex", 0, 0],
 // ----------------------------------------- INPUT 2
     [ "i.1.color", 0, 0],
     [ "i.1.gain", 0, 0.4444444444],
@@ -718,6 +912,7 @@ var _params = [
     [ "i.1.aux.1.value", 0, 0],
     [ "i.1.aux.2.value", 0, 0],
     [ "i.1.aux.3.value", 0, 0],
+    [ "i.1.stereoIndex", 0, 0],
 // ----------------------------------------- INPUT 3
     [ "i.2.color", 0, 0],
     [ "i.2.gain", 0, 0.4444444444],
@@ -790,6 +985,7 @@ var _params = [
     [ "i.2.aux.1.value", 0, 0],
     [ "i.2.aux.2.value", 0, 0],
     [ "i.2.aux.3.value", 0, 0],
+    [ "i.2.stereoIndex", 0, 0],
 // ----------------------------------------- INPUT 4
     [ "i.3.color", 0, 0],
     [ "i.3.gain", 0, 0.4444444444],
@@ -862,6 +1058,7 @@ var _params = [
     [ "i.3.aux.1.value", 0, 0],
     [ "i.3.aux.2.value", 0, 0],
     [ "i.3.aux.3.value", 0, 0],
+    [ "i.3.stereoIndex", 0, 0],
 // ----------------------------------------- INPUT 5
     [ "i.4.color", 0, 0],
     [ "i.4.gain", 0, 0.4444444444],
@@ -934,6 +1131,7 @@ var _params = [
     [ "i.4.aux.1.value", 0, 0],
     [ "i.4.aux.2.value", 0, 0],
     [ "i.4.aux.3.value", 0, 0],
+    [ "i.4.stereoIndex", 0, 0],
 // ----------------------------------------- INPUT 6
     [ "i.5.color", 0, 0],
     [ "i.5.gain", 0, 0.4444444444],
@@ -1006,6 +1204,7 @@ var _params = [
     [ "i.5.aux.1.value", 0, 0],
     [ "i.5.aux.2.value", 0, 0],
     [ "i.5.aux.3.value", 0, 0],
+    [ "i.5.stereoIndex", 0, 0],
 // ----------------------------------------- INPUT 7
     [ "i.6.color", 0, 0],
     [ "i.6.gain", 0, 0.4444444444],
@@ -1078,6 +1277,7 @@ var _params = [
     [ "i.6.aux.1.value", 0, 0],
     [ "i.6.aux.2.value", 0, 0],
     [ "i.6.aux.3.value", 0, 0],
+    [ "i.6.stereoIndex", 0, 0],
 // ----------------------------------------- INPUT 8
     [ "i.7.color", 0, 0],
     [ "i.7.gain", 0, 0.4444444444],
@@ -1150,6 +1350,7 @@ var _params = [
     [ "i.7.aux.1.value", 0, 0],
     [ "i.7.aux.2.value", 0, 0],
     [ "i.7.aux.3.value", 0, 0],
+    [ "i.7.stereoIndex", 0, 0],
 // ----------------------------------------- LINE IN L
     [ "l.0.color", 0, 0],
     [ "l.0.mix", 0, 0],
@@ -1216,6 +1417,7 @@ var _params = [
     [ "l.0.aux.1.value", 0, 0],
     [ "l.0.aux.2.value", 0, 0],
     [ "l.0.aux.3.value", 0, 0],
+    [ "l.0.stereoIndex", 0, 0],
 // ----------------------------------------- LINE IN R
     [ "l.1.color", 0, 0],
     [ "l.1.mix", 0, 0],
@@ -1282,6 +1484,7 @@ var _params = [
     [ "l.1.aux.1.value", 0, 0],
     [ "l.1.aux.2.value", 0, 0],
     [ "l.1.aux.3.value", 0, 0],
+    [ "l.1.stereoIndex", 0, 0],
 // ----------------------------------------- USB L
     [ "p.0.color", 0, 0],
     [ "p.0.mix", 0, 0],
@@ -1347,6 +1550,7 @@ var _params = [
     [ "p.0.aux.1.value", 0, 0],
     [ "p.0.aux.2.value", 0, 0],
     [ "p.0.aux.3.value", 0, 0],
+    [ "p.0.stereoIndex", 0, 0],
 // ----------------------------------------- USB R
     [ "p.1.color", 0, 0],
     [ "p.1.mix", 0, 0],
@@ -1412,6 +1616,7 @@ var _params = [
     [ "p.1.aux.1.value", 0, 0],
     [ "p.1.aux.2.value", 0, 0],
     [ "p.1.aux.3.value", 0, 0],
+    [ "p.1.stereoIndex", 1, 1],
 // ----------------------------------------- SUBGROUP 1
     [ "s.0.color", 0, 0],
     [ "s.0.mix", 0, 0],
@@ -1770,6 +1975,7 @@ var _params = [
     [ "f.3.pan", 0.5, 0.5],
     [ "f.3.mute", 0, 0],
     [ "f.3.solo", 0, 0],
+    [ "f.3.fxtype", 3, 3],
     [ "f.3.par1", 0.5, 0.5],
     [ "f.3.par2", 0.400000006, 0.400000006],
     [ "f.3.par3", 0.5, 0.5],
@@ -1829,7 +2035,7 @@ var _params = [
     [ "a.0.mute", 0, 0],
     [ "a.0.solo", 0, 0],
     [ "a.0.eq.bypass", 0, 0],
-    [ "a.0.eq.linked", 0, 0],
+    // [ "a.0.eq.linked", 0, 0],
     [ "a.0.eq.peak.0", 0.5, 0.5],
     [ "a.0.eq.peak.1", 0.5, 0.5],
     [ "a.0.eq.peak.2", 0.5, 0.5],
@@ -1878,7 +2084,7 @@ var _params = [
     //  [ "a.0.link2master", 0, 0],
     //  [ "a.0.mgmask", 0, 0],
     //  [ "a.0.safe", 0, 0],
-    //  [ "a.0.stereoIndex", -1, -1],
+    [ "a.0.stereoIndex", -1, -1],
     [ "a.0.afs.enabled", 0, 0],
     [ "a.0.afs.sensitivity", 0.5, 0.5],
     [ "a.0.afs.fmode", 0, 0],
@@ -1897,7 +2103,7 @@ var _params = [
     [ "a.1.mute", 0, 0],
     [ "a.1.solo", 0, 0],
     [ "a.1.eq.bypass", 0, 0],
-    [ "a.1.eq.linked", 0, 0],
+    // [ "a.1.eq.linked", 0, 0],
     [ "a.1.eq.peak.0", 0.5, 0.5],
     [ "a.1.eq.peak.1", 0.5, 0.5],
     [ "a.1.eq.peak.2", 0.5, 0.5],
@@ -1946,7 +2152,7 @@ var _params = [
     //  [ "a.1.link2master", 0, 0],
     //  [ "a.1.mgmask", 0, 0],
     //  [ "a.1.safe", 0, 0],
-    //  [ "a.1.stereoIndex", -1, -1],
+    [ "a.1.stereoIndex", -1, -1],
     [ "a.1.afs.enabled", 0, 0],
     [ "a.1.afs.sensitivity", 0.5, 0.5],
     [ "a.1.afs.fmode", 0, 0],
@@ -1965,7 +2171,7 @@ var _params = [
     [ "a.2.mute", 0, 0],
     [ "a.2.solo", 0, 0],
     [ "a.2.eq.bypass", 0, 0],
-    [ "a.2.eq.linked", 0, 0],
+    // [ "a.2.eq.linked", 0, 0],
     [ "a.2.eq.peak.0", 0.5, 0.5],
     [ "a.2.eq.peak.1", 0.5, 0.5],
     [ "a.2.eq.peak.2", 0.5, 0.5],
@@ -2014,7 +2220,7 @@ var _params = [
     //  [ "a.2.link2master", 0, 0],
     //  [ "a.2.mgmask", 0, 0],
     //  [ "a.2.safe", 0, 0],
-    //  [ "a.2.stereoIndex", -1, -1],
+    [ "a.2.stereoIndex", -1, -1],
     [ "a.2.afs.enabled", 0, 0],
     [ "a.2.afs.sensitivity", 0.5, 0.5],
     [ "a.2.afs.fmode", 0, 0],
@@ -2033,7 +2239,7 @@ var _params = [
     [ "a.3.mute", 0, 0],
     [ "a.3.solo", 0, 0],
     [ "a.3.eq.bypass", 0, 0],
-    [ "a.3.eq.linked", 0, 0],
+    // [ "a.3.eq.linked", 0, 0],
     [ "a.3.eq.peak.0", 0.5, 0.5],
     [ "a.3.eq.peak.1", 0.5, 0.5],
     [ "a.3.eq.peak.2", 0.5, 0.5],
@@ -2082,7 +2288,7 @@ var _params = [
     //  [ "a.3.link2master", 0, 0],
     //  [ "a.3.mgmask", 0, 0],
     //  [ "a.3.safe", 0, 0],
-    //  [ "a.3.stereoIndex", -1, -1],
+    [ "a.3.stereoIndex", -1, -1],
     [ "a.3.afs.enabled", 0, 0],
     [ "a.3.afs.sensitivity", 0.5, 0.5],
     [ "a.3.afs.fmode", 0, 0],
@@ -2196,7 +2402,7 @@ var _params = [
     //  [ "m.afs.numfixed", 6, 6],
     //  [ "m.afs.numtotal", 12, 12],
 // ----------------------------------------- AFS2
-    [ "afs.enabled", 1, 1],
+    // [ "afs.enabled", 1, 1],
 
     [ "", 0, 0 ]
 ];
