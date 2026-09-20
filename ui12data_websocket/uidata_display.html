@@ -58,7 +58,7 @@ socket.onmessage = function(event) {
         if (line == '2::') {
             
         }
-        else if (line.search(/SETD/) > -1 || line.search(/SETS/) > -1) {    // filter SETD and SETS messages
+        else if (line.search(/SETD/) > -1 || line.search(/SETS/) > -1 || line.search(/BMSG/) > -1) {    // filter SETD and SETS messages
             // insert messages at the top, so you don't have to scroll for new messages
             if (!line.startsWith("SETD^var.currentTrackPos"))
                 document.getElementById("messages").insertAdjacentHTML("afterbegin", line+"<br \>");

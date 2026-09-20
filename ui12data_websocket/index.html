@@ -8,7 +8,7 @@
 <style>
 body {
     font-family: Consolas, monospace;
-    font-size: 1em;
+    font-size: 0.8em;
     background: black;
     color: white;
     /* white-space: pre-line; */
@@ -16,7 +16,7 @@ body {
 }
 
 input[type=range] {
-    pointer-events: none;
+    /*pointer-events: none;*/
 }
 input[type=range]::-moz-range-thumb {
     pointer-events: auto !important;
@@ -31,27 +31,34 @@ input[type=range]::-webkit-slider-thumb {
 select{
     padding: 3px;
     margin: 3px;
-    margin-left: 10px;
     font-weight: bold;
 }
 
 button{
     font-family: Consolas, monospace;
+    width: auto;
 }
 
 .inputDiv{
-    margin-top: 3em;
-    margin-right: 1em;
-}
-
-.input, .line, .usb, .subgroup, .fxsend, .auxsend, .color{
+    margin: 1em 1em 3em 5em;
+    padding: 1em 0px 0px 0px;
     border-style: none solid none solid;
     border-color: black;
     border-width: 10px;
 }
 
+.input, .line, .usb, .subgroup, .fxsend, .auxsend, .color, .master{
+    border-style: dashed;
+    border-width: 1px;
+}
+
+.label{
+    background-color: #222;
+    margin: 1px 1px 1px 1px;
+}
+
 .color {
-    border-style: solid solid none solid;
+
 }
 .digitech {
     background-color: rgba(255, 255, 255, 0.1);
@@ -86,7 +93,7 @@ button{
 </head>
 
 <body onload="createElements();">
-    <div id="websocket" style="position: fixed; top: 0px; background-color: black"></div>
+    <div id="websocket" style="position: fixed; top: 0px; left: 1em; background-color: black"></div>
     <div id="content">
         
     </div>
@@ -100,9 +107,9 @@ button{
 // NOTE this page is currently set up ONLY for Ui12 parameters
 // Ui16/24 parameters will require changes
 
-const MIXER_IP = "localhost"; // change this to your own mixer IP or just input it with the prompt
-//const defaultIp = "192.168.137.3"; // change this to your own mixer IP or just input it with the prompt
-//const MIXER_IP = prompt("Please enter the IP address:", defaultIp) || defaultIp;
+// const MIXER_IP = "0.0.0.0"; // change this to your own mixer IP or just input it with the prompt
+const defaultIp = "192.168.137.3"; // change this to your own mixer IP or just input it with the prompt
+const MIXER_IP = prompt("Please enter the IP address:", defaultIp) || defaultIp;
 var socket = new WebSocket("ws://"+MIXER_IP+":80");
 const _alive_ = "3:::ALIVE"; var _keepAlive; // used to maintain the Websocket connection
 
@@ -121,7 +128,7 @@ socket.onerror = function(error) {
 socket.onopen = function(event) {
     // if the text "3:::ALIVE" is not received within 20 seconds the websocket is closed. Sending every second.
     _keepAlive = setInterval(function(){ socket.send(_alive_); }, 1000);
-    console.log("WebSocket connected");
+    console.log("WebSocket connected!");
     document.getElementById("websocket").innerHTML = "WebSocket connected!";
 };
 socket.onclose = () => {
@@ -132,25 +139,27 @@ socket.onclose = () => {
 };
 
 let updateEvent = new CustomEvent("update");
+
+// parse the incoming string
 socket.onmessage = function(event) {
     
     received = event.data;
     
-    receivedArray = received.split(/\r?\n/);
+    receivedArray = received.split(/\r?\n/); // split at newline to make array
     receivedArray.forEach(line => {
         line = line.replace('3:::', ''); // remove the beginning of the line
-        if (line == '2::') {
+        if (line == '2::') { // ignore this
             
         }
-        else if (line.search(/SETD/) > -1 || line.search(/SETS/) > -1) {    // filter SETD and SETS messages
-            line = line.replace('SETD^', ''); 
-            //if (!line.startsWith("var.currentTrackPos")) document.getElementById("messages").insertAdjacentHTML("afterbegin", line+"<br \>");
-            lineArray = line.split(/\^/);
+        else if (line.search(/SETD/) > -1 || line.search(/SETS/) > -1 || line.search(/BMSG/) > -1) {    // filter SETD and SETS messages
+            line = line.replace('SETD^', '');   // remove the beginning of the line starting with SETD
+            // if (!line.startsWith("var.currentTrackPos")) document.getElementById("messages").insertAdjacentHTML("afterbegin", line+"<br \>");
+            lineArray = line.split(/\^/);       // split at caret
             for(var x = 0; x < _params.length; x++){
                 if(lineArray[0] == _params[x][0]){
-                    _params[x][1] = lineArray[1];
+                    _params[x][1] = lineArray[1];   // fill in mixer values into local array
                     var _t = document.getElementById(_params[x][0]);
-                    if(_t){
+                    if(_t){     // update all sliders
                         _t.value = lineArray[1];
                         _t.dispatchEvent(new Event('input'));
                         // _t.dispatchEvent(updateEvent);
@@ -169,9 +178,9 @@ function createElements(){
         let t = document.createElement('div');
         t.id = _inout[x];
         t.classList.add("inputDiv");
-        t.style.height = '90vh';
-        t.style.overflow = 'auto';
-        t.style.marginTop = '50px';
+        //t.style.height = '90vh';
+        //t.style.overflow = 'auto';
+        //t.style.marginTop = '50px';
         _doc.appendChild(t);
         let t1 = document.createElement('div');
         let t2 = document.createElement('div');
@@ -185,7 +194,7 @@ function createElements(){
         t.appendChild(t2);
         t.appendChild(t3);
         t.appendChild(t4);
-        t.insertAdjacentHTML("afterbegin", `${t.id}<br \>`);
+        t.insertAdjacentHTML("afterbegin", `${_inout_label[x]}<br \>`);
         if(t.id.startsWith('a.') || t.id.startsWith('m')){
             let t5= document.createElement('div');
             t5.id = `${t.id}.afs`;
@@ -193,13 +202,19 @@ function createElements(){
         }
         let _b = document.createElement('button');
         _b.id = `${t.id}_button`;
-        _b.innerText = `${t.id}`;
+        _b.innerText = `${_inout_label[x]}`;
+        _b.title = `${sync_ch[x]}`;
         _b.style.position = 'fixed';
-        _b.style.bottom = '20px';
-        _b.style.left = `${x*35}px`;
+        _b.style.left = '20px';
+        _b.style.top = `${30+x*25}px`;
         let _a = document.createElement('a');
         _a.href = `#${t.id}`;
         _a.appendChild(_b);
+        
+        // _b.addEventListener('click', (e) => {
+        //     socket.send(`BMSG^SYNC^Lemongrassgoa^${_b.title}`);
+        //     console.log(`BMSG^SYNC^Lemongrassgoa^${_b.title}`);
+        // });
         document.body.appendChild(_a);
     }
     
@@ -209,7 +224,6 @@ function createElements(){
 
 }
 
-let preventRecursion = 1;
 function createSlider(element, _index){
 /* */
     // Create the slider container
@@ -219,7 +233,6 @@ function createSlider(element, _index){
 
     // Create the slider label
     const sliderLabel = document.createElement('span');
-    sliderLabel.style.marginTop = '10px';
     
     // Create the slider input
     const slider = document.createElement('input');
@@ -259,6 +272,7 @@ function createSlider(element, _index){
     if(slider.id.search(/.l./) > -1)       slider.parentElement.classList.add("l");
     if(slider.id.search(/.r./) > -1)       slider.parentElement.classList.add("r");
     
+    // DON'T TOUCH "stereoIndex" UNLESS YOU KNOW WHAT YOU ARE DOING
     if(slider.id.endsWith("stereoIndex")){
         slider.setAttribute('disabled', '1');
         slider.step = '1';
@@ -267,6 +281,7 @@ function createSlider(element, _index){
     }
    
     // adjust ranges and steps for different controls
+        // these are all ON/OFF toggles
     if(slider.id.endsWith("bypass")     ||
        slider.id.endsWith("enabled")    ||
        slider.id.endsWith("hiz")        ||
@@ -288,16 +303,18 @@ function createSlider(element, _index){
         sliderContainer.style.flexDirection = 'row-reverse';
         sliderContainer.style.justifyContent = 'flex-end';
     }
+        // display "Digitech" section to the right
     if(slider.parentElement.classList.contains("digitech")){
         if(!slider.id.endsWith("enabled")) slider.style.width = "30%";
         sliderContainer.style.flexDirection = '';
     }
+        // disable these by default until otherwise enabled
     if(slider.parentElement.classList.contains("digitech") ||
        slider.parentElement.classList.contains("deesser") ||
        slider.parentElement.classList.contains("afs")     ){
         if(!slider.id.endsWith("enabled")) slider.setAttribute('disabled', '1');
     }
-    
+        // FX4 type slider
     if(slider.id.endsWith("fxtype")){
         slider.step = '2';
         slider.min = 1;
@@ -306,14 +323,16 @@ function createSlider(element, _index){
         sliderContainer.style.flexDirection = 'row-reverse';
         sliderContainer.style.justifyContent = 'flex-end';
     }
+        // color slider
     if(slider.id.endsWith("color")){
         slider.step = '1';
         slider.max = 11;
         sliderContainer.classList.add("color");
     }
+        // HPF slider
     if(slider.id.endsWith("hpf.freq"))
         slider.max = '0.5584';
-
+        // create dropdown selection for amps and cabs
     if(slider.id.endsWith("amp")){
         slider.step = '1';
         slider.max = E_AMPS2.length-1;
@@ -358,6 +377,7 @@ function createSlider(element, _index){
             target.dispatchEvent(new Event('input'));
         });
     }
+        // bpm slider
     if(slider.id.endsWith("bpm")){
         slider.step = '1';
         slider.min = '30';
@@ -375,33 +395,35 @@ function createSlider(element, _index){
     // Create a label to display the slider's value
     sliderLabel.textContent = `${slider.id}: ${slider.value}`;
     sliderLabel.id =`${slider.id}Label`;
+    sliderLabel.classList.add("label");
+    if(slider.id.endsWith("amp"))   sliderLabel.textContent = "Amplifier: ";
+    if(slider.id.endsWith("cab"))   sliderLabel.textContent = "Cabinet: ";
 
     // Update the label when the slider value changes
     slider.addEventListener('input', () => {
         /* */
         var _t = "";
+        // send the command to the Ui
         if(slider.id.endsWith("amp")){
             let target = document.getElementById(slider.getAttribute('target'));
             target.selectedIndex = slider.value;
             _t=E_AMPS2[slider.value]; 
             socket.send(`3:::SETD^${slider.id}^${_t[0]}`);
-            sliderLabel.textContent = "Amplifier: ";
         } else if(slider.id.endsWith("cab")){
             let target = document.getElementById(slider.getAttribute('target'));
             target.selectedIndex = slider.value;
             _t=E_CABS2[slider.value];
             socket.send(`3:::SETD^${slider.id}^${_t[0]}`);
-            sliderLabel.textContent = "Cabinet: ";
         } else {
             socket.send(`3:::SETD^${slider.id}^${slider.value}`);
             sliderLabel.textContent = `${slider.id}: ${slider.value}`;
-            for(let i = 0; i < _inout.length; i++){
-                if(sliderLabel.id.startsWith(_inout[i])){
-                    sliderLabel.textContent = slider.id.replace(_inout[i], _inout_label[i]) + `: ${slider.value}`;
-                }
-            }
         }
         
+            // phantom timeout for 10s
+        if(slider.id.endsWith("phantom")){
+            slider.setAttribute('disabled', '1');
+            setTimeout(function(){slider.removeAttribute('disabled');}, 10000);
+        }
         // PHANTOM and HI-Z should NOT be on at the same time
         // limited to Inputs 1 and 2
         if(slider.id.startsWith("i.0.")){
@@ -412,8 +434,10 @@ function createSlider(element, _index){
             }
             if(slider.id.endsWith("hiz") && slider.value > 0){
                 var temp = document.getElementById("i.0.phantom");
-                temp.value = 0;
-                temp.dispatchEvent(new Event('input'));
+                if(temp.value > 0){
+                    temp.value = 0;
+                    temp.dispatchEvent(new Event('input'));
+                }
             }
         }
         if(slider.id.startsWith("i.1.")){
@@ -424,17 +448,16 @@ function createSlider(element, _index){
             }
             if(slider.id.endsWith("hiz") && slider.value > 0){
                 var temp = document.getElementById("i.1.phantom");
-                temp.value = 0;
-                temp.dispatchEvent(new Event('input'));
+                if(temp.value > 0){
+                    temp.value = 0;
+                    temp.dispatchEvent(new Event('input'));
+                }
             }
         }
         /* */
         if(slider.id.endsWith("color")){
+            slider.parentElement.parentElement.style.borderColor =  _colors[slider.value];
             let _t = slider.id.replace('.color', '');
-            let _x = document.getElementsByClassName(_t);
-            for(let i = 0; i < _x.length; i++){
-                _x[i].style.borderColor = _colors[slider.value];
-            }
             sliderLabel.textContent = `${slider.id}: ${_colors1[slider.value]}`;
         }
         if(slider.id.endsWith("bypass"))  _bypass(slider);
@@ -588,7 +611,6 @@ function createSlider(element, _index){
 function _bypass(target){
     let _t = target.id.replace('.bypass', '');
     let _x = document.getElementsByClassName('slider');
-    console.log(_t);
     for(var i = 0; i < _x.length; i++){
         if(_x[i].id.startsWith(_t)){
             if(target.value == 1)
@@ -728,13 +750,21 @@ var _inout = [ "i.0", "i.1", "i.2", "i.3",     // inputs
                "f.0", "f.1", "f.2", "f.3",     // FX
                "a.0", "a.1", "a.2", "a.3", "m" // aux, master
               ];
-var _inout_label = [ "Input 1",    "Input 2",    "Input 3",    "Input 4",        // inputs
-                     "Input 5",    "Input 6",    "Input 7",    "Input 8",        // inputs
-                     "Line-in L",  "Line-in R",  "Player L",   "Player R",       // line in, USB
-                     "Subgroup 1", "Subgroup 2", "Subgroup 3", "Subgroup 4",     // subgroups
-                     "FX 1",       "FX 2",       "FX 3",       "FX 4",           // FX
-                     "Aux 1",      "Aux 2",      "Aux 3",      "Aux 4", "Master" // aux, master
+var _inout_label = [ "Input 1",   "Input 2",   "Input 3",   "Input 4",        // inputs
+                     "Input 5",   "Input 6",   "Input 7",   "Input 8",        // inputs
+                     "Line L",    "Line R",    "Player L",  "Player R",       // line in, USB
+                     "Sub 1",     "Sub 2",     "Sub 3",     "Sub 4",          // subgroups
+                     "FX 1",      "FX 2",      "FX 3",      "FX 4",           // FX
+                     "Aux 1",     "Aux 2",     "Aux 3",     "Aux 4", "Master" // aux, master
                     ];
+
+var sync_ch = [  0,  1,  2,  3,     // inputs
+                 4,  5,  6,  7,     // inputs
+                 8,  9, 10, 11,     // line in, USB
+                12, 13, 14, 15,     // subgroups
+                16, 17, 18, 19,     // FX
+                20, 21, 22, 23, -1  // aux, master
+               ];
 
 var _colors = [ "#000000", "#111111", "#8B0000", "#FF0000",
                 "#FFA500", "#FFFF00", "#56DE43", "#0091C2",
@@ -751,6 +781,7 @@ var _colors1 = [ "Off", "Black", "Burgundy", "Red",
 var _params = [
 // ----------------------------------------- INPUT 1
     [ "i.0.color", 0, 0],
+    [ "i.0.stereoIndex", -1, -1],
     [ "i.0.gain", 0, 0.4444444444],
     [ "i.0.mix", 0, 0],
     [ "i.0.pan", 0.5, 0.5],
@@ -830,9 +861,9 @@ var _params = [
     [ "i.0.aux.1.value", 0, 0],
     [ "i.0.aux.2.value", 0, 0],
     [ "i.0.aux.3.value", 0, 0],
-    [ "i.0.stereoIndex", 0, 0],
 // ----------------------------------------- INPUT 2
     [ "i.1.color", 0, 0],
+    [ "i.1.stereoIndex", -1, -1],
     [ "i.1.gain", 0, 0.4444444444],
     [ "i.1.mix", 0, 0],
     [ "i.1.pan", 0.5, 0.5],
@@ -912,9 +943,9 @@ var _params = [
     [ "i.1.aux.1.value", 0, 0],
     [ "i.1.aux.2.value", 0, 0],
     [ "i.1.aux.3.value", 0, 0],
-    [ "i.1.stereoIndex", 0, 0],
 // ----------------------------------------- INPUT 3
     [ "i.2.color", 0, 0],
+    [ "i.2.stereoIndex", -1, -1],
     [ "i.2.gain", 0, 0.4444444444],
     [ "i.2.mix", 0, 0],
     [ "i.2.pan", 0.5, 0.5],
@@ -985,9 +1016,9 @@ var _params = [
     [ "i.2.aux.1.value", 0, 0],
     [ "i.2.aux.2.value", 0, 0],
     [ "i.2.aux.3.value", 0, 0],
-    [ "i.2.stereoIndex", 0, 0],
 // ----------------------------------------- INPUT 4
     [ "i.3.color", 0, 0],
+    [ "i.3.stereoIndex", -1, -1],
     [ "i.3.gain", 0, 0.4444444444],
     [ "i.3.mix", 0, 0],
     [ "i.3.pan", 0.5, 0.5],
@@ -1058,9 +1089,9 @@ var _params = [
     [ "i.3.aux.1.value", 0, 0],
     [ "i.3.aux.2.value", 0, 0],
     [ "i.3.aux.3.value", 0, 0],
-    [ "i.3.stereoIndex", 0, 0],
 // ----------------------------------------- INPUT 5
     [ "i.4.color", 0, 0],
+    [ "i.4.stereoIndex", -1, -1],
     [ "i.4.gain", 0, 0.4444444444],
     [ "i.4.mix", 0, 0],
     [ "i.4.pan", 0.5, 0.5],
@@ -1131,9 +1162,9 @@ var _params = [
     [ "i.4.aux.1.value", 0, 0],
     [ "i.4.aux.2.value", 0, 0],
     [ "i.4.aux.3.value", 0, 0],
-    [ "i.4.stereoIndex", 0, 0],
 // ----------------------------------------- INPUT 6
     [ "i.5.color", 0, 0],
+    [ "i.5.stereoIndex", -1, -1],
     [ "i.5.gain", 0, 0.4444444444],
     [ "i.5.mix", 0, 0],
     [ "i.5.pan", 0.5, 0.5],
@@ -1204,9 +1235,9 @@ var _params = [
     [ "i.5.aux.1.value", 0, 0],
     [ "i.5.aux.2.value", 0, 0],
     [ "i.5.aux.3.value", 0, 0],
-    [ "i.5.stereoIndex", 0, 0],
 // ----------------------------------------- INPUT 7
     [ "i.6.color", 0, 0],
+    [ "i.6.stereoIndex", -1, -1],
     [ "i.6.gain", 0, 0.4444444444],
     [ "i.6.mix", 0, 0],
     [ "i.6.pan", 0.5, 0.5],
@@ -1277,9 +1308,9 @@ var _params = [
     [ "i.6.aux.1.value", 0, 0],
     [ "i.6.aux.2.value", 0, 0],
     [ "i.6.aux.3.value", 0, 0],
-    [ "i.6.stereoIndex", 0, 0],
 // ----------------------------------------- INPUT 8
     [ "i.7.color", 0, 0],
+    [ "i.7.stereoIndex", -1, -1],
     [ "i.7.gain", 0, 0.4444444444],
     [ "i.7.mix", 0, 0],
     [ "i.7.pan", 0.5, 0.5],
@@ -1350,12 +1381,9 @@ var _params = [
     [ "i.7.aux.1.value", 0, 0],
     [ "i.7.aux.2.value", 0, 0],
     [ "i.7.aux.3.value", 0, 0],
-    [ "i.7.stereoIndex", 0, 0],
 // ----------------------------------------- LINE IN L
-    [ "l.0.color", 0, 0],
     [ "l.0.mix", 0, 0],
     [ "l.0.pan", 0.5, 0.5],
-    [ "l.0.invert", 0, 0],
     [ "l.0.mute", 0, 0],
     [ "l.0.solo", 0, 0],
     [ "l.0.eq.bypass", 0, 0],
@@ -1417,12 +1445,10 @@ var _params = [
     [ "l.0.aux.1.value", 0, 0],
     [ "l.0.aux.2.value", 0, 0],
     [ "l.0.aux.3.value", 0, 0],
-    [ "l.0.stereoIndex", 0, 0],
+    [ "l.0.stereoIndex", -1, -1],
 // ----------------------------------------- LINE IN R
-    [ "l.1.color", 0, 0],
     [ "l.1.mix", 0, 0],
     [ "l.1.pan", 0.5, 0.5],
-    [ "l.1.invert", 0, 0],
     [ "l.1.mute", 0, 0],
     [ "l.1.solo", 0, 0],
     [ "l.1.eq.bypass", 0, 0],
@@ -1484,9 +1510,8 @@ var _params = [
     [ "l.1.aux.1.value", 0, 0],
     [ "l.1.aux.2.value", 0, 0],
     [ "l.1.aux.3.value", 0, 0],
-    [ "l.1.stereoIndex", 0, 0],
+    [ "l.1.stereoIndex", -1, -1],
 // ----------------------------------------- USB L
-    [ "p.0.color", 0, 0],
     [ "p.0.mix", 0, 0],
     [ "p.0.pan", 0.5, 0.5],
     [ "p.0.mute", 0, 0],
@@ -1550,9 +1575,8 @@ var _params = [
     [ "p.0.aux.1.value", 0, 0],
     [ "p.0.aux.2.value", 0, 0],
     [ "p.0.aux.3.value", 0, 0],
-    [ "p.0.stereoIndex", 0, 0],
+    [ "p.0.stereoIndex", -1, -1],
 // ----------------------------------------- USB R
-    [ "p.1.color", 0, 0],
     [ "p.1.mix", 0, 0],
     [ "p.1.pan", 0.5, 0.5],
     [ "p.1.mute", 0, 0],
@@ -1616,9 +1640,8 @@ var _params = [
     [ "p.1.aux.1.value", 0, 0],
     [ "p.1.aux.2.value", 0, 0],
     [ "p.1.aux.3.value", 0, 0],
-    [ "p.1.stereoIndex", 1, 1],
+    [ "p.1.stereoIndex", -1, -1],
 // ----------------------------------------- SUBGROUP 1
-    [ "s.0.color", 0, 0],
     [ "s.0.mix", 0, 0],
     [ "s.0.pan", 0.5, 0.5],
     [ "s.0.mute", 0, 0],
@@ -1663,7 +1686,6 @@ var _params = [
     [ "s.0.fx.2.value", 0, 0],
     [ "s.0.fx.3.value", 0, 0],
 // ----------------------------------------- SUBGROUP 2
-    [ "s.1.color", 0, 0],
     [ "s.1.mix", 0, 0],
     [ "s.1.pan", 0.5, 0.5],
     [ "s.1.mute", 0, 0],
@@ -1708,7 +1730,6 @@ var _params = [
     [ "s.1.fx.2.value", 0, 0],
     [ "s.1.fx.3.value", 0, 0],
 // ----------------------------------------- SUBGROUP 3
-    [ "s.2.color", 0, 0],
     [ "s.2.mix", 0, 0],
     [ "s.2.pan", 0.5, 0.5],
     [ "s.2.mute", 0, 0],
@@ -1753,7 +1774,6 @@ var _params = [
     [ "s.2.fx.2.value", 0, 0],
     [ "s.2.fx.3.value", 0, 0],
 // ----------------------------------------- SUBGROUP 4
-    [ "s.3.color", 0, 0],
     [ "s.3.mix", 0, 0],
     [ "s.3.pan", 0.5, 0.5],
     [ "s.3.mute", 0, 0],
@@ -1798,7 +1818,6 @@ var _params = [
     [ "s.3.fx.2.value", 0, 0],
     [ "s.3.fx.3.value", 0, 0],
 // ----------------------------------------- FX 1 REVERB
-    [ "f.0.color", 0, 0],
     [ "f.0.mix", 0, 0],
     [ "f.0.pan", 0.5, 0.5],
     [ "f.0.mute", 0, 0],
@@ -1856,7 +1875,6 @@ var _params = [
     [ "f.0.aux.2.value", 0, 0],
     [ "f.0.aux.3.value", 0, 0],
 // ----------------------------------------- FX 2 DELAY
-    [ "f.1.color", 0, 0],
     [ "f.1.mix", 0, 0],
     [ "f.1.pan", 0.5, 0.5],
     [ "f.1.mute", 0, 0],
@@ -1914,7 +1932,6 @@ var _params = [
     [ "f.1.aux.2.value", 0, 0],
     [ "f.1.aux.3.value", 0, 0],
 // ----------------------------------------- FX 3 CHORUS
-    [ "f.2.color", 0, 0],
     [ "f.2.mix", 0, 0],
     [ "f.2.pan", 0.5, 0.5],
     [ "f.2.mute", 0, 0],
@@ -1970,7 +1987,6 @@ var _params = [
     [ "f.2.aux.2.value", 0, 0],
     [ "f.2.aux.3.value", 0, 0],
 // ----------------------------------------- FX 4 ROOM / DELAY
-    [ "f.3.color", 0, 0],
     [ "f.3.mix", 0, 0],
     [ "f.3.pan", 0.5, 0.5],
     [ "f.3.mute", 0, 0],
@@ -2029,7 +2045,6 @@ var _params = [
     [ "f.3.aux.2.value", 0, 0],
     [ "f.3.aux.3.value", 0, 0],
 // ----------------------------------------- AUX 1
-    [ "a.0.color", 0, 0],
     [ "a.0.mix", 0.7647058824, 0.7647058824],
     [ "a.0.pan", 0.5, 0.5],
     [ "a.0.mute", 0, 0],
@@ -2097,7 +2112,6 @@ var _params = [
     //  [ "a.0.afs.numfixed", 6, 6],
     //  [ "a.0.afs.numtotal", 12, 12],
 // ----------------------------------------- AUX 2
-    [ "a.1.color", 0, 0],
     [ "a.1.mix", 0.7647058824, 0.7647058824],
     [ "a.1.pan", 0.5, 0.5],
     [ "a.1.mute", 0, 0],
@@ -2165,7 +2179,6 @@ var _params = [
     //  [ "a.1.afs.numfixed", 6, 6],
     //  [ "a.1.afs.numtotal", 12, 12],
 // ----------------------------------------- AUX 3
-    [ "a.2.color", 0, 0],
     [ "a.2.mix", 0.7647058824, 0.7647058824],
     [ "a.2.pan", 0.5, 0.5],
     [ "a.2.mute", 0, 0],
@@ -2233,7 +2246,6 @@ var _params = [
     //  [ "a.2.afs.numfixed", 6, 6],
     //  [ "a.2.afs.numtotal", 12, 12],
 // ----------------------------------------- AUX 4
-    [ "a.3.color", 0, 0],
     [ "a.3.mix", 0.7647058824, 0.7647058824],
     [ "a.3.pan", 0.5, 0.5],
     [ "a.3.mute", 0, 0],
@@ -2368,7 +2380,7 @@ var _params = [
     [ "m.eq.peak.r.28", 0.5, 0.5],
     [ "m.eq.peak.r.29", 0.5, 0.5],
     [ "m.eq.peak.r.30", 0.5, 0.5],
-    [ "m.gate.bypass", 1, 1],
+    [ "m.gate.bypass", 0, 0],
     [ "m.gate.thresh", 0, 0],
     [ "m.gate.depth", 0, 0],
     [ "m.gate.attack", 0, 0],
