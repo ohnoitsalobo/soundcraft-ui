@@ -1,6 +1,7 @@
 ## uidata_websocket
 
-[SCREENSHOT](https://raw.githubusercontent.com/ohnoitsalobo/soundcraft-ui/refs/heads/main/ui12data_websocket/screenshot.png)
+[SCREENSHOT 1](https://raw.githubusercontent.com/ohnoitsalobo/soundcraft-ui/refs/heads/main/ui12data_websocket/screenshot 1.png), 
+[SCREENSHOT 2](https://raw.githubusercontent.com/ohnoitsalobo/soundcraft-ui/refs/heads/main/ui12data_websocket/screenshot 2.png)
 
 **DISCLAIMER: Please note that the mixer only accepts specific fader/slider values for each parameter, and sending values outside the correct range may cause unintended behaviour.  
 Using this script to modify mixer values also does not currently respect stereo or linked inputs / outputs configuration, this will need to added in the code.  
