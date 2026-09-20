@@ -48,7 +48,7 @@ button{
 }
 
 .input, .line, .usb, .subgroup, .fxsend, .auxsend, .color, .master{
-    border-style: dashed;
+    border-style: none none dotted none;
     border-width: 1px;
 }
 
@@ -134,8 +134,9 @@ socket.onopen = function(event) {
 socket.onclose = () => {
     clearInterval(_keepAlive); // no need to keep sending 'alive' text when disconnected
     console.log('WebSocket disconnected!');
-    document.getElementById("websocket").innerHTML = "WebSocket disconnected, reconnecting!";
-    setTimeout( openWebSocket, 1000);
+    document.getElementById("websocket").innerHTML = "WebSocket disconnected! Refresh to reconnect.";
+    //document.getElementById("websocket").innerHTML = "WebSocket disconnected, reconnecting!";
+    //setTimeout( openWebSocket, 1000);
 };
 
 let updateEvent = new CustomEvent("update");
