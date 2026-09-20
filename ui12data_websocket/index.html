@@ -112,11 +112,15 @@ const defaultIp = "192.168.137.3"; // change this to your own mixer IP or just i
 const MIXER_IP = prompt("Please enter the IP address:", defaultIp) || defaultIp;
 var socket = new WebSocket("ws://"+MIXER_IP+":80");
 const _alive_ = "3:::ALIVE"; var _keepAlive; // used to maintain the Websocket connection
+var _connecting;
+document.getElementById("websocket").innerHTML = "Attempting to connect to mixer Websocket .";
+_connecting = setInterval(function(){ document.getElementById("websocket").innerHTML += "."; }, 1000);
 
 function openWebSocket(){
     socket = new WebSocket("ws://"+MIXER_IP+":80");
 }
 socket.onerror = function(error) {
+    clearInterval(_connecting); 
     if (error.message == undefined && socket.readyState == 3) {
         console.log("No connection established.");
     }
@@ -126,6 +130,7 @@ socket.onerror = function(error) {
 };
 
 socket.onopen = function(event) {
+    clearInterval(_connecting); 
     // if the text "3:::ALIVE" is not received within 20 seconds the websocket is closed. Sending every second.
     _keepAlive = setInterval(function(){ socket.send(_alive_); }, 1000);
     console.log("WebSocket connected!");
