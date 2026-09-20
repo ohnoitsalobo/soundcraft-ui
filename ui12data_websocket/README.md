@@ -9,16 +9,17 @@ I am not responsible for your mixer's safety or for your live mix. Use this scri
 My attempt to build a basic HTML page that can control desired aspects of the Soundcraft Ui series digital mixers.  
 This was made possible through code from https://blechtrottel.net/en/jswebsockets.html
 
+The webpage `index.html` displays the current values of nearly all internal mixer control values, and allows manipulation of said values using sliders. USE WITH CARE.  
 This webpage SHOULD work with the Soundcraft Ui12 directly. Be sure to change the given IP address in the javascript section of the HTML to match your own mixer's IP address.  
 I will attempt to gain access to a Ui16 and/or Ui24 to test as well, but I expect it should work just as well. Modifications to the code would be required.
-The webpage `uidata_display.html` only **displays** the incoming control data and RTA data, and cannot send commands back to the mixer.  
-The webpage `index.html` displays the current values of nearly all internal mixer control values, and allows manipulation of said values using sliders. USE WITH CARE.  
+
+The webpage `uidata_display.html` only **displays** the incoming control data and RTA data, and does not send commands back to the mixer.  
 
 You can control the mixer directly by sending a WebSocket message like this: `socket.send("3:::SETD^i.3.mute^0")` where you can replace the message after "SETD^" with any of the supported messages in the mixer.  
 You'll want to script that with sliders and knobs, etc. This can also be used with network-enabled devices like Arduino (with the network shield) or Espressif ESP 8266/32 series, or Raspberry Pi.  
 
 Using this, it would be possible to translate the messages to and from MIDI signals if you have the programming knowledge.
-0
+
 You can fetch the initial starting values of the mixer from a JSON file located at `http://[your-mixer-ip]/js/initparams.js` OR parse the intial values from the Websocket when initially connecting to the mixer.
 
 EXAMPLE UI12 OUTPUT DATA  
