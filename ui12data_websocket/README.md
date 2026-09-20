@@ -25,7 +25,8 @@ You can fetch the initial starting values of the mixer from a JSON file located 
 EXAMPLE UI12 OUTPUT DATA  
 (There are a few values listed below that are 1 - listed, but advisable not to touch, 2 - listed, but have no effect, or 3 - unlisted, and have an effect).  
 Ui16 and Ui24 will have correspondingly more data as they have more inputs and outputs to control.  
-Ui24 in particular will have a lot more as it also has patching information to synchronize. There are over 6000 parameters to control on a Ui24!
+Ui24 in particular will have a lot more as it also has patching information to synchronize.
+There are over 6000 parameters to control on a Ui24! See the file `ui24_data.txt` for all Ui24 parameters.
 
 ```
 ## INPUT 1
