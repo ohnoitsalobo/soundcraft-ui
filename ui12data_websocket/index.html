@@ -426,10 +426,12 @@ function createSlider(element, _index){
             sliderLabel.textContent = `${slider.id}: ${slider.value}`;
         }
         
-            // phantom timeout for 10s
+            // phantom timeout for 5s
+        let _phantomTimeout;
         if(slider.id.endsWith("phantom")){
             slider.setAttribute('disabled', '1');
-            setTimeout(function(){slider.removeAttribute('disabled');}, 10000);
+            clearTimeout(_phantomTimeout);
+            _phantomTimeout = setTimeout(function(){slider.removeAttribute('disabled');}, 5000);
         }
         // PHANTOM and HI-Z should NOT be on at the same time
         // limited to Inputs 1 and 2
